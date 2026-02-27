@@ -1,0 +1,953 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "API DOC",
+    "description": "API documentation for PDF generation, credits management, storage configuration, and file management.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "{base_url}",
+      "description": "API Server",
+      "variables": {
+        "base_url": {
+          "default": "https://api.example.com",
+          "description": "Base URL of the API"
+        }
+      }
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "PDF Routes",
+      "description": "PDF template and generation operations"
+    },
+    {
+      "name": "Credits",
+      "description": "Credit management and transaction history"
+    },
+    {
+      "name": "Storage Configs",
+      "description": "Storage configuration management"
+    },
+    {
+      "name": "Storage File Routes",
+      "description": "File management operations"
+    }
+  ],
+  "paths": {
+    "/v1/pdf/generate/{template_id}": {
+      "post": {
+        "tags": ["PDF Routes"],
+        "summary": "Generate PDF",
+        "description": "Generate a PDF from a template with dynamic variables",
+        "operationId": "generatePdf",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the PDF template to use",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "store-file",
+            "in": "header",
+            "required": false,
+            "description": "Whether to store the generated file (true or false)",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GeneratePdfRequest"
+              },
+              "example": {
+                "variables": {
+                  "name": "John Doe",
+                  "date": "2026-01-15"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratePdfResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      }
+    },
+    "/v1/pdf": {
+      "get": {
+        "tags": ["PDF Routes"],
+        "summary": "List All PDFs",
+        "description": "Retrieve a list of all PDF templates",
+        "operationId": "listAllPdfs",
+        "responses": {
+          "200": {
+            "description": "List of PDF templates retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PdfTemplate"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      },
+      "post": {
+        "tags": ["PDF Routes"],
+        "summary": "Save Template",
+        "description": "Create and save a new PDF template",
+        "operationId": "saveTemplate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PdfTemplateInput"
+              },
+              "example": {
+                "name": "doc api",
+                "variable": [
+                  {
+                    "name": "name",
+                    "fallback": "Rushi"
+                  }
+                ],
+                "page_size": "A4",
+                "type": "KONVA",
+                "pages": [
+                  [
+                    {
+                      "id": "eb864ccf-fd61-47c9-b895-ba6a75782231",
+                      "type": "text",
+                      "pos": {
+                        "x": 318,
+                        "y": 81
+                      },
+                      "props": {
+                        "width": 250,
+                        "height": 40,
+                        "opacity": 1,
+                        "stroke": "#000000",
+                        "strokeWidth": 0,
+                        "rotation": 0,
+                        "content": "${name}",
+                        "fontFamily": "Arial",
+                        "fontSize": 14,
+                        "fontStyle": "normal",
+                        "align": "center",
+                        "verticalAlign": "top",
+                        "fill": "#000000"
+                      }
+                    }
+                  ]
+                ],
+                "contentJSON": null
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Template created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/pdf/{template_id}": {
+      "get": {
+        "tags": ["PDF Routes"],
+        "summary": "Get Single Template",
+        "description": "Retrieve a single PDF template by ID",
+        "operationId": "getSingleTemplate",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the PDF template",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfTemplate"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["PDF Routes"],
+        "summary": "Update Template",
+        "description": "Update an existing PDF template",
+        "operationId": "updateTemplate",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the PDF template to update",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PdfTemplateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Template updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PdfTemplate"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["PDF Routes"],
+        "summary": "Delete Template",
+        "description": "Delete a PDF template by ID",
+        "operationId": "deleteTemplate",
+        "parameters": [
+          {
+            "name": "template_id",
+            "in": "path",
+            "required": true,
+            "description": "The ID of the PDF template to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Template deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          },
+          "404": {
+            "description": "Template not found"
+          }
+        }
+      }
+    },
+    "/v1/credits": {
+      "get": {
+        "tags": ["Credits"],
+        "summary": "Get Total Credit Amount",
+        "description": "Retrieve the total credit amount for the authenticated user",
+        "operationId": "getTotalCredits",
+        "responses": {
+          "200": {
+            "description": "Credit amount retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreditAmount"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/credits/transaction-history": {
+      "get": {
+        "tags": ["Credits"],
+        "summary": "Get Credit History",
+        "description": "Retrieve the credit transaction history",
+        "operationId": "getCreditHistory",
+        "responses": {
+          "200": {
+            "description": "Transaction history retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CreditTransaction"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/credits/wallet/balance": {
+      "get": {
+        "tags": ["Credits"],
+        "summary": "Get Wallet Balance and Rate",
+        "description": "Retrieve wallet balance and current rate information",
+        "operationId": "getWalletBalance",
+        "responses": {
+          "200": {
+            "description": "Wallet balance retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletBalance"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/user/storage-config": {
+      "get": {
+        "tags": ["Storage Configs"],
+        "summary": "Get Storage Configs",
+        "description": "Retrieve the current storage configuration",
+        "operationId": "getStorageConfig",
+        "responses": {
+          "200": {
+            "description": "Storage configuration retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageConfig"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Storage Configs"],
+        "summary": "Set Storage Configs",
+        "description": "Set or update storage configuration",
+        "operationId": "setStorageConfig",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StorageConfigInput"
+              },
+              "examples": {
+                "system": {
+                  "summary": "System Storage",
+                  "value": {
+                    "storage_type": "system",
+                    "config": {}
+                  }
+                },
+                "s3": {
+                  "summary": "S3 Storage",
+                  "value": {
+                    "storage_type": "s3",
+                    "config": {
+                      "bucket_name": "my-bucket",
+                      "region": "ap-south-1",
+                      "access_key": "AKIA....",
+                      "secret_key": "my-secret"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Storage configuration updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StorageConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/storage/files": {
+      "get": {
+        "tags": ["Storage File Routes"],
+        "summary": "Get All Files from Cloud Storage",
+        "description": "Retrieve a list of all files from cloud storage",
+        "operationId": "getAllFiles",
+        "responses": {
+          "200": {
+            "description": "Files retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StorageFile"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    },
+    "/v1/storage/files/{file_id}": {
+      "delete": {
+        "tags": ["Storage File Routes"],
+        "summary": "Delete File",
+        "description": "Delete a single file by its ID",
+        "operationId": "deleteFile",
+        "parameters": [
+          {
+            "name": "file_id",
+            "in": "path",
+            "required": true,
+            "description": "MongoDB ID of the file to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "File deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          },
+          "404": {
+            "description": "File not found"
+          }
+        }
+      }
+    },
+    "/v1/storage/files/bulk-delete": {
+      "post": {
+        "tags": ["Storage File Routes"],
+        "summary": "Delete All Files from Folder",
+        "description": "Bulk delete multiple files by their IDs",
+        "operationId": "bulkDeleteFiles",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkDeleteRequest"
+              },
+              "example": {
+                "file_ids": ["60d5ecb54b24e1234567890a", "60d5ecb54b24e1234567890b"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Files deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkDeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized - Invalid or missing API key"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-Api-Key",
+        "description": "API key for authentication"
+      }
+    },
+    "schemas": {
+      "GeneratePdfRequest": {
+        "type": "object",
+        "properties": {
+          "variables": {
+            "type": "object",
+            "description": "Dynamic variables to populate the PDF template",
+            "additionalProperties": true
+          }
+        },
+        "required": ["variables"]
+      },
+      "GeneratePdfResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of the generated PDF"
+          },
+          "file_id": {
+            "type": "string",
+            "description": "ID of the stored file (if store-file is true)"
+          }
+        }
+      },
+      "PdfTemplate": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "MongoDB ObjectId"
+          },
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          },
+          "variable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateVariable"
+            }
+          },
+          "page_size": {
+            "type": "string",
+            "enum": ["A4", "A3", "A5", "Letter", "Legal"],
+            "description": "Page size of the PDF"
+          },
+          "user": {
+            "type": "object",
+            "properties": {
+              "$oid": {
+                "type": "string"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["KONVA"],
+            "description": "Template type"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PageElement"
+              }
+            }
+          },
+          "contentJSON": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "PdfTemplateInput": {
+        "type": "object",
+        "required": ["name", "page_size", "type", "pages"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Template name"
+          },
+          "variable": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateVariable"
+            }
+          },
+          "page_size": {
+            "type": "string",
+            "enum": ["A4", "A3", "A5", "Letter", "Legal"],
+            "description": "Page size of the PDF"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["KONVA"],
+            "description": "Template type"
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PageElement"
+              }
+            }
+          },
+          "contentJSON": {
+            "type": "object",
+            "nullable": true
+          }
+        }
+      },
+      "TemplateVariable": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Variable name"
+          },
+          "fallback": {
+            "type": "string",
+            "description": "Fallback value if variable is not provided"
+          }
+        },
+        "required": ["name"]
+      },
+      "PageElement": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["text", "image", "shape", "line"],
+            "description": "Element type"
+          },
+          "pos": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            }
+          },
+          "props": {
+            "$ref": "#/components/schemas/ElementProps"
+          }
+        }
+      },
+      "ElementProps": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "type": "number"
+          },
+          "height": {
+            "type": "number"
+          },
+          "opacity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "stroke": {
+            "type": "string",
+            "description": "Stroke color (hex)"
+          },
+          "strokeWidth": {
+            "type": "number"
+          },
+          "rotation": {
+            "type": "number"
+          },
+          "content": {
+            "type": "string",
+            "description": "Text content (can include variables like ${name})"
+          },
+          "fontFamily": {
+            "type": "string"
+          },
+          "fontSize": {
+            "type": "number"
+          },
+          "fontStyle": {
+            "type": "string",
+            "enum": ["normal", "bold", "italic", "bold italic"]
+          },
+          "align": {
+            "type": "string",
+            "enum": ["left", "center", "right"]
+          },
+          "verticalAlign": {
+            "type": "string",
+            "enum": ["top", "middle", "bottom"]
+          },
+          "fill": {
+            "type": "string",
+            "description": "Fill color (hex)"
+          }
+        }
+      },
+      "CreditAmount": {
+        "type": "object",
+        "properties": {
+          "total_credits": {
+            "type": "number",
+            "description": "Total credit amount"
+          }
+        }
+      },
+      "CreditTransaction": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["add", "deduct"]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "WalletBalance": {
+        "type": "object",
+        "properties": {
+          "balance": {
+            "type": "number",
+            "description": "Current wallet balance"
+          },
+          "rate": {
+            "type": "number",
+            "description": "Current rate"
+          }
+        }
+      },
+      "StorageConfig": {
+        "type": "object",
+        "properties": {
+          "storage_type": {
+            "type": "string",
+            "enum": ["system", "s3"],
+            "description": "Type of storage (system or S3)"
+          },
+          "config": {
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "Empty config for system storage"
+              },
+              {
+                "$ref": "#/components/schemas/S3Config"
+              }
+            ]
+          }
+        }
+      },
+      "StorageConfigInput": {
+        "type": "object",
+        "required": ["storage_type", "config"],
+        "properties": {
+          "storage_type": {
+            "type": "string",
+            "enum": ["system", "s3"],
+            "description": "Type of storage (system or S3)"
+          },
+          "config": {
+            "oneOf": [
+              {
+                "type": "object",
+                "description": "Empty config for system storage"
+              },
+              {
+                "$ref": "#/components/schemas/S3Config"
+              }
+            ]
+          }
+        }
+      },
+      "S3Config": {
+        "type": "object",
+        "required": ["bucket_name", "region", "access_key", "secret_key"],
+        "properties": {
+          "bucket_name": {
+            "type": "string",
+            "description": "S3 bucket name"
+          },
+          "region": {
+            "type": "string",
+            "description": "AWS region"
+          },
+          "access_key": {
+            "type": "string",
+            "description": "AWS access key"
+          },
+          "secret_key": {
+            "type": "string",
+            "description": "AWS secret key"
+          }
+        }
+      },
+      "StorageFile": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string",
+            "description": "MongoDB ObjectId"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "size": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "BulkDeleteRequest": {
+        "type": "object",
+        "required": ["file_ids"],
+        "properties": {
+          "file_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of file IDs to delete"
+          }
+        }
+      },
+      "BulkDeleteResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "deleted_count": {
+            "type": "integer",
+            "description": "Number of files deleted"
+          }
+        }
+      }
+    }
+  }
+}

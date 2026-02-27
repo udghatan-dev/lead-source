@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="margin: auto; background: rgba(241, 242, 243, 0); display: block;" width="70px" height="70px" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+<g transform="translate(50,50) scale(1) translate(-50,-50)"><g>
+  <animateTransform attributeName="transform" type="rotate" values="0 50 50;90 50 50" times="0;1" dur="0.49504950495049505s" repeatCount="indefinite"></animateTransform><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#1d3f72" transform="rotate(0 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#1d3f72;#5699d2;#d8ebf9;#71c2cc" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#5699d2" transform="rotate(30 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#5699d2;#d8ebf9;#71c2cc;#1d3f72" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#d8ebf9" transform="rotate(60 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#d8ebf9;#71c2cc;#1d3f72;#5699d2" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#71c2cc" transform="rotate(90 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#71c2cc;#1d3f72;#5699d2;#d8ebf9" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#1d3f72" transform="rotate(120 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#1d3f72;#5699d2;#d8ebf9;#71c2cc" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#5699d2" transform="rotate(150 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#5699d2;#d8ebf9;#71c2cc;#1d3f72" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#d8ebf9" transform="rotate(180 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#d8ebf9;#71c2cc;#1d3f72;#5699d2" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#71c2cc" transform="rotate(210 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#71c2cc;#1d3f72;#5699d2;#d8ebf9" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#1d3f72" transform="rotate(240 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#1d3f72;#5699d2;#d8ebf9;#71c2cc" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#5699d2" transform="rotate(270 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#5699d2;#d8ebf9;#71c2cc;#1d3f72" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#d8ebf9" transform="rotate(300 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#d8ebf9;#71c2cc;#1d3f72;#5699d2" begin="0s"></animate>
+</path><path d="M44.6,20.6c2.6,4.4,7,7.1,11.7,7.7c1.9-4.4,1.7-9.5-0.8-14c-2.6-4.4-7-7.1-11.7-7.7C41.9,11,42,16.2,44.6,20.6z" fill="#71c2cc" transform="rotate(330 50 50)">
+  <animate attributeName="fill" repeatCount="indefinite" dur="0.49504950495049505s" keyTimes="0;0.33;0.66;1" values="#71c2cc;#1d3f72;#5699d2;#d8ebf9" begin="0s"></animate>
+</path></g></g>
+</svg>

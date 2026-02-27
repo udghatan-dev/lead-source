@@ -1,0 +1,14 @@
+// Actions
+export const API_RESPONSE_SUCCESS = 'API_RESPONSE_SUCCESS';
+export const API_RESPONSE_ERROR = 'API_RESPONSE_ERROR';
+
+export const GET_WABA_MENU = 'GET_WABA_MENU';
+export const GET_HOME_MENU = 'GET_HOME_MENU';
+export const GET_CRM_MENU = 'GET_CRM_MENU';
+export const GET_AUTOMATION_MENU = 'GET_AUTOMATION_MENU';
+export const GET_BOT_MENU = 'GET_BOT_MENU';
+export const GET_WORKSPACE_MENU = 'GET_WORKSPACE_MENU';
+export const GET_VN_MENU = 'GET_VN_MENU';
+export const GET_PROFILE_MENU = 'GET_PROFILE_MENU';
+
+export const RESET_PANEL_MENU = 'RESET_PANEL_MENU';

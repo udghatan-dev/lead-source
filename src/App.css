@@ -1,0 +1,11 @@
+.empty-log-box {
+  background-image: url('./assets/images/svg/empty.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: 0px 30px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 400px;
+  margin-top: auto;
+}

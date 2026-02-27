@@ -1,0 +1,101 @@
+.full_page_lightbox {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.55);
+  z-index: 9999;
+}
+
+.animation_holder_light {
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  margin: auto;
+}
+
+.animation_wrapper_light {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}
+.brand_name_light {
+  color: #38699f;
+  font-size: 28px;
+  font-weight: 700;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}
+.brand_tag_light {
+  font-size: 14px;
+  color: #38699f;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}
+
+.full_page_loading_dark {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  z-index: 9999;
+}
+
+.animation_holder_dark {
+  position: absolute;
+  top: 40%;
+  width: 100%;
+  margin: auto;
+}
+
+.animation_wrapper_dark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}
+
+.brand_name_dark {
+  color: white;
+  font-size: 28px;
+  font-weight: 700;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}
+
+.brand_tag_dark {
+  font-size: 14px;
+  color: white;
+  -webkit-user-select: none;
+  /* Safari */
+  -ms-user-select: none;
+  /* IE 10 and IE 11 */
+  user-select: none;
+  /* Standard syntax */
+}

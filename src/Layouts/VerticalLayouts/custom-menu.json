@@ -1,0 +1,179 @@
+[
+  {
+    "type": "header",
+    "label": "Menu",
+    "permission": "EMPTY"
+  },
+  {
+    "type": "page",
+    "id": "dashboard",
+    "label": "All Products",
+    "icon": "bx bxs-dashboard",
+    "href": "/products",
+    "permission": "EMPTY"
+  },
+  {
+    "type": "page",
+    "id": "waba",
+    "label": "WABA Instances",
+    "icon": "bx bxl-whatsapp",
+    "href": "/products/waba",
+    "permission": "EMPTY"
+  },
+  {
+    "type": "page",
+    "id": "crm",
+    "label": "CRM",
+    "icon": "ri-briefcase-5-line",
+    "href": "/crm",
+    "permission": "EMPTY",
+    "subItems": [
+      {
+        "type": "page",
+        "id": "livechat",
+        "label": "Live Chat",
+        "icon": "bx bxs-chat",
+        "href": "/products/crm/livechat",
+        "permission": "CRM.LIVE_CHAT"
+      },
+      {
+        "type": "page",
+        "id": "channel",
+        "label": "Channels",
+        "icon": "bx bx-git-compare",
+        "href": "/products/crm/channel",
+        "permission": "CRM.CHANNEL"
+      },
+      {
+        "type": "page",
+        "id": "contact",
+        "label": "Contacts",
+        "icon": "bx bxs-contact",
+        "href": "/products/crm/contact",
+        "permission": "CRM.CONTACT"
+      },
+      {
+        "type": "page",
+        "id": "custom-field",
+        "label": "Custom Fields",
+        "icon": "bx bxs-tag-alt",
+        "href": "/products/crm/custom-field",
+        "permission": "CRM.CUSTOM_FIELD"
+      },
+      {
+        "type": "page",
+        "id": "canned-replies",
+        "label": "Canned Replies",
+        "icon": "bx bxs-message-detail",
+        "href": "/products/crm/canned-replies",
+        "permission": "CRM.CANNED_REPLY"
+      },
+      {
+        "type": "page",
+        "id": "filter-list",
+        "label": "Segments",
+        "icon": "bx bx-filter",
+        "href": "/products/crm/filter-list",
+        "permission": "CRM.SEGMENT"
+      },
+      {
+        "type": "page",
+        "id": "campaign",
+        "label": "Campaign",
+        "icon": "bx bxs-megaphone",
+        "href": "/products/crm/campaign",
+        "permission": "CRM.CAMPAIGN"
+      },
+      {
+        "type": "page",
+        "id": "channel-group",
+        "label": "Channel Group",
+        "icon": "bx bx-merge",
+        "href": "/products/crm/channel-group",
+        "permission": "CRM.CHANNEL_GROUP"
+      },
+      {
+        "type": "page",
+        "id": "mass-broadcast",
+        "label": "Mass Broadcast",
+        "icon": "bx bx-broadcast",
+        "href": "/products/crm/mass-broadcast",
+        "permission": "CRM.MASS_BROADCAST"
+      },
+      {
+        "type": "page",
+        "id": "automation-trigger",
+        "label": "Triggers",
+        "icon": "bx bx-link",
+        "href": "/products/crm/automation/trigger",
+        "permission": "CRM.TRIGGER"
+      }
+    ]
+  },
+  {
+    "type": "page",
+    "id": "workspace",
+    "label": "Workspace",
+    "icon": "bx bxs-network-chart",
+    "href": "/workspace",
+    "permission": "EMPTY",
+    "subItems": [
+      {
+        "type": "page",
+        "id": "roleandpermission",
+        "label": "Roles & Permissions",
+        "icon": "bx bxs-user-badge",
+        "href": "/workspace/user-role",
+        "permission": "EMPTY"
+      },
+      {
+        "type": "page",
+        "id": "team-member",
+        "label": "Team Members",
+        "icon": "bx bxs-user-account",
+        "href": "/workspace/team-member",
+        "permission": "EMPTY"
+      },
+      {
+        "type": "page",
+        "id": "profile-settings",
+        "label": "Account Settings",
+        "icon": "bx bxs-cog",
+        "href": "/workspace/settings",
+        "permission": "EMPTY"
+      },
+      {
+        "type": "page",
+        "id": "wallet",
+        "label": "Wallet & Transactions",
+        "icon": "bx bxs-wallet",
+        "href": "/workspace/wallet",
+        "permission": "EMPTY"
+      },
+      {
+        "type": "page",
+        "id": "billing",
+        "label": "Billing",
+        "icon": "bx bxs-credit-card",
+        "href": "/workspace/billing",
+        "permission": "EMPTY"
+      },
+      {
+        "type": "page",
+        "id": "support-ticket",
+        "label": "Support Ticket",
+        "icon": "las la-life-ring",
+        "href": "/workspace/ticket",
+        "permission": "EMPTY"
+      }
+    ]
+  },
+  {
+    "type": "custom_link",
+    "id": "documentation",
+    "label": "API Documentation",
+    "icon": "bx bxs-book",
+    "href": "https://documentation.automationsbuilder.com",
+    "permission": "EMPTY"
+  }
+]

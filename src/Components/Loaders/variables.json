@@ -1,0 +1,32 @@
+{
+  "DEFAULT": {
+    "LOADER": "LOADER7",
+    "TITLE": "Please Wait...",
+    "TAG": "",
+    "THEME": "light"
+  },
+  "DASH.WA.TEAM": {
+    "LOADER": "LOADER7",
+    "TITLE": "WA TEAM",
+    "TAG": "Please Wait...",
+    "THEME": "light"
+  },
+  "APP.AUTOMATIONSBUILDER.COM": {
+    "LOADER": "LOADER7",
+    "TITLE": "Please Wait...",
+    "TAG": "Loading...",
+    "THEME": "light"
+  },
+  "LOCALHOST": {
+    "LOADER": "LOADER8",
+    "TITLE": "",
+    "TAG": "",
+    "THEME": "light"
+  },
+  "APP.WAADSBOT.COM": {
+    "LOADER": "LOADER8",
+    "TITLE": "",
+    "TAG": "",
+    "THEME": "light"
+  }
+}
