@@ -17,7 +17,9 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, updateConnections } from '../../helpers/backend_helper';
+import ConfigureModal from './ConfigureModal';
+import DeleteConfirmModal from './DeleteConfirmModal';
 
 //icons
 import { FaMeta } from 'react-icons/fa6';
@@ -69,6 +71,11 @@ const LeadSources = (props) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalUrl, setModalUrl] = useState('');
+
+  // Configure & Delete modal state
+  const [configureOpen, setConfigureOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedConnection, setSelectedConnection] = useState(null);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -273,6 +280,32 @@ const LeadSources = (props) => {
 
   const filteredAll = filterSources(allSources);
 
+  const handleConfigure = (connection) => {
+    setSelectedConnection(connection);
+    setConfigureOpen(true);
+  };
+
+  const handleConfigureSave = async (id, formData) => {
+    // TODO: integrate update API when ready
+    console.log('Update connection:', id, formData);
+    await updateConnections(formData);
+    setConfigureOpen(false);
+    setSelectedConnection(null);
+    fetchConnections(currentPage);
+  };
+
+  const handleDeleteClick = (connection) => {
+    setSelectedConnection(connection);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async (id) => {
+    await deleteConnection(id);
+    setDeleteOpen(false);
+    setSelectedConnection(null);
+    fetchConnections(currentPage);
+  };
+
   function handleCreateNewConnection(source) {
     if (source.key === 'facebookLeadAds') {
       const token = localStorage.getItem('authToken') || '';
@@ -418,6 +451,7 @@ const LeadSources = (props) => {
                               <button
                                 className='btn btn-sm btn-soft-dark d-flex align-items-center gap-1'
                                 style={{ fontSize: '0.8rem', padding: '0.3rem 0.5rem' }}
+                                onClick={() => handleConfigure(connection)}
                               >
                                 <BsGearWideConnected />
                                 <span>Configure</span>
@@ -439,6 +473,7 @@ const LeadSources = (props) => {
                                   fontSize: '0.8rem',
                                   padding: '0.3rem 0.5rem',
                                 }}
+                                onClick={() => handleDeleteClick(connection)}
                               >
                                 <FaTrashCan />
                                 <span>Remove</span>
@@ -616,6 +651,22 @@ const LeadSources = (props) => {
               )}
             </div>
           )}
+          {/* Configure Modal */}
+          <ConfigureModal
+            isOpen={configureOpen}
+            toggle={() => { setConfigureOpen(false); setSelectedConnection(null); }}
+            connection={selectedConnection}
+            onSave={handleConfigureSave}
+          />
+
+          {/* Delete Confirm Modal */}
+          <DeleteConfirmModal
+            isOpen={deleteOpen}
+            toggle={() => { setDeleteOpen(false); setSelectedConnection(null); }}
+            connection={selectedConnection}
+            onConfirm={handleDeleteConfirm}
+          />
+
           {/* Facebook Lead Ads Modal */}
           <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='xl' centered>
             <ModalHeader toggle={() => setShowModal(false)}>
