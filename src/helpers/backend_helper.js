@@ -306,11 +306,12 @@ export const purchaseCreditsWithCoins = (data) => api.create(url.DIG_WALLET_PURC
 setLeadSourceAuth('a869bd5a-01b1-40a9-9862-8ea3c28f501b', '69959f58b78f675bcd3f7f66');
 export const listConnections = (data) => leadsourceApi.get(lsUrl.LEAD_CONNECTIONS, data);
 export const updateConnections = (data) => leadsourceApi.create(lsUrl.SAVE_CONNECTION, data);
-export const deleteConnection = (data) => leadsourceApi.delete(lsUrl.DELETE_CONNECTION, data);
+export const deleteConnection = (id) => leadsourceApi.delete(`${lsUrl.DELETE_CONNECTION}/${id}/delete-selection`);
 export const getFacebookPages = () => leadsourceApi.get(lsUrl.FACEBOOK_PAGES);
 export const getFacebookForms = (data) => leadsourceApi.create(lsUrl.FACEBOOK_FORMS, data);
 export const getWebhooks = (id) => leadsourceApi.get(`${lsUrl.WEBHOOK_GET_ALL}/${id}/getAll`);
 export const deleteWebhook = (id) => leadsourceApi.delete(`${lsUrl.WEBHOOK_DELETE}/${id}`);
+export const getWebhookLogs = (data) => leadsourceApi.get(lsUrl.WEBHOOK_LOGS, data);
 
 // === voice agent===
 // export const createVoiceConfig = (data) => api.create(url.VOICE_CONFIG, data);

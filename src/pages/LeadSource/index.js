@@ -20,6 +20,7 @@ import { useHistory } from 'react-router-dom';
 import { listConnections, deleteConnection, updateConnections } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import LogsModal from './LogsModal';
 
 //icons
 import { FaMeta } from 'react-icons/fa6';
@@ -45,6 +46,7 @@ import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
 
 const sourceIconMap = {
+  // camelCase keys (used in allSources)
   facebookLeadAds: <FaMeta />,
   webhook: <MdOutlineWebhook />,
   form: <SiGoogleforms />,
@@ -62,6 +64,26 @@ const sourceIconMap = {
   tradeIndia: <FaHandshake />,
   magicBricks: <BsBuildingsFill />,
   zomato: <MdRestaurant />,
+  // provider keys (returned from API)
+  facebook_leadgen: <FaMeta />,
+  google_forms: <SiGoogleforms />,
+  google_ads: <SiGoogleads />,
+  linkedin_leadgen: <SiLinkedin />,
+  landing_page: <CgWebsite />,
+  phone_contact: <ImMobile />,
+  ocr_app: <IoQrCodeOutline />,
+  zoho_crm: <SiZoho />,
+  hubspot_crm: <FaHubspot />,
+  india_mart: <FaIndustry />,
+  trade_india: <FaHandshake />,
+  magic_bricks: <BsBuildingsFill />,
+};
+
+const getSourceIcon = (connection) => {
+  return sourceIconMap[connection.provider]
+    || sourceIconMap[connection.source]
+    || sourceIconMap[connection.key]
+    || <BsGearWideConnected />;
 };
 
 const LeadSources = (props) => {
@@ -72,9 +94,10 @@ const LeadSources = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [modalUrl, setModalUrl] = useState('');
 
-  // Configure & Delete modal state
+  // Configure, Delete & Logs modal state
   const [configureOpen, setConfigureOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [logsOpen, setLogsOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
 
   // Installed connections state
@@ -299,6 +322,11 @@ const LeadSources = (props) => {
     setDeleteOpen(true);
   };
 
+  const handleLogsClick = (connection) => {
+    setSelectedConnection(connection);
+    setLogsOpen(true);
+  };
+
   const handleDeleteConfirm = async (id) => {
     await deleteConnection(id);
     setDeleteOpen(false);
@@ -423,7 +451,7 @@ const LeadSources = (props) => {
                                   justifyContent: 'center',
                                 }}
                               >
-                                {sourceIconMap[connection.source || connection.key] || <BsGearWideConnected />}
+                                {getSourceIcon(connection)}
                               </div>
                               <div className='flex-grow-1'>
                                 <h6 className='card-title mb-1' style={{ color: '#1e293b', fontWeight: '600', fontSize: '0.95rem' }}>
@@ -459,6 +487,7 @@ const LeadSources = (props) => {
                               <button
                                 className='btn btn-sm btn-soft-primary d-flex align-items-center gap-1'
                                 style={{ fontSize: '0.8rem', padding: '0.3rem 0.5rem' }}
+                                onClick={() => handleLogsClick(connection)}
                               >
                                 <FiFileText />
                                 <span>Logs</span>
@@ -657,6 +686,13 @@ const LeadSources = (props) => {
             toggle={() => { setConfigureOpen(false); setSelectedConnection(null); }}
             connection={selectedConnection}
             onSave={handleConfigureSave}
+          />
+
+          {/* Logs Modal */}
+          <LogsModal
+            isOpen={logsOpen}
+            toggle={() => { setLogsOpen(false); setSelectedConnection(null); }}
+            connection={selectedConnection}
           />
 
           {/* Delete Confirm Modal */}
