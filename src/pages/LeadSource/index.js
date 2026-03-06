@@ -704,14 +704,14 @@ const LeadSources = (props) => {
           />
 
           {/* Facebook Lead Ads Modal */}
-          <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='xl' centered>
+          <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='md' centered>
             <ModalHeader toggle={() => setShowModal(false)}>
               <div className='d-flex align-items-center gap-2'>
                 <FaMeta style={{ color: '#1877F2' }} />
                 <span>Facebook Lead Ads</span>
               </div>
             </ModalHeader>
-            <ModalBody style={{ padding: 0, height: '80vh' }}>
+            <ModalBody style={{ padding: 0, height: '70vh' }}>
               {modalUrl && (
                 <iframe
                   src={modalUrl}

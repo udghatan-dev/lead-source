@@ -17,7 +17,9 @@ import { MdOutlineWebhook } from 'react-icons/md';
 import { FaTrashCan } from 'react-icons/fa6';
 import { IoMdAdd, IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
+import { BiLink } from 'react-icons/bi';
 import { getFacebookPages, getFacebookForms, getWebhooks, deleteWebhook } from '../../helpers/backend_helper';
+import FieldMappingModal from './FieldMappingModal';
 
 // Searchable dropdown component
 const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameKey = 'name', idKey = 'id' }) => {
@@ -179,6 +181,9 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
   const [newWebhookUrl, setNewWebhookUrl] = useState('');
   const [deletingWebhookId, setDeletingWebhookId] = useState(null);
 
+  // Mapping modal state
+  const [mappingOpen, setMappingOpen] = useState(false);
+
   // Fetch pages and webhooks when modal opens
   useEffect(() => {
     if (isOpen && connection) {
@@ -312,6 +317,7 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
     }
   };
 
+
   const handleSave = async () => {
     if (!selectedPage || !selectedForm) return;
 
@@ -337,7 +343,7 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
   const config = connection?.configuration || {};
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} centered size='lg'>
+    <Modal isOpen={isOpen} toggle={toggle} centered size='md'>
       <ModalHeader toggle={toggle}>
         <div className='d-flex align-items-center gap-2'>
           <BsGearWideConnected />
@@ -533,6 +539,19 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           )}
         </div>
 
+        {/* Field Mapping Button */}
+        {selectedForm && (
+          <div className='mb-3'>
+            <button
+              className='btn btn-sm btn-soft-primary d-flex align-items-center gap-1'
+              onClick={() => setMappingOpen(true)}
+            >
+              <BiLink />
+              <span>Field Mapping</span>
+            </button>
+          </div>
+        )}
+
         {/* Selected Summary */}
         {selectedPage && selectedForm && (
           <div
@@ -574,6 +593,14 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           <span>{saving ? 'Saving...' : 'Save Changes'}</span>
         </button>
       </ModalFooter>
+
+      {/* Field Mapping Modal */}
+      <FieldMappingModal
+        isOpen={mappingOpen}
+        toggle={() => setMappingOpen(false)}
+        connection={connection}
+        formFields={selectedForm?.fields || selectedForm?.questions || []}
+      />
     </Modal>
   );
 };

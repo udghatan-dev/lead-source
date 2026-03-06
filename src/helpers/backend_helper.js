@@ -312,6 +312,9 @@ export const getFacebookForms = (data) => leadsourceApi.create(lsUrl.FACEBOOK_FO
 export const getWebhooks = (id) => leadsourceApi.get(`${lsUrl.WEBHOOK_GET_ALL}/${id}/getAll`);
 export const deleteWebhook = (id) => leadsourceApi.delete(`${lsUrl.WEBHOOK_DELETE}/${id}`);
 export const getWebhookLogs = (data) => leadsourceApi.get(lsUrl.WEBHOOK_LOGS, data);
+export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
+export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
+export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);
 
 // === voice agent===
 // export const createVoiceConfig = (data) => api.create(url.VOICE_CONFIG, data);
