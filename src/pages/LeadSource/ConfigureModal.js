@@ -7,19 +7,14 @@ import {
   ModalFooter,
   FormGroup,
   Label,
-  Input,
   Spinner,
   Alert,
 } from 'reactstrap';
 import { BsGearWideConnected } from 'react-icons/bs';
 import { FaMeta } from 'react-icons/fa6';
-import { MdOutlineWebhook } from 'react-icons/md';
-import { FaTrashCan } from 'react-icons/fa6';
-import { IoMdAdd, IoMdClose } from 'react-icons/io';
+import { IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
-import { BiLink } from 'react-icons/bi';
-import { getFacebookPages, getFacebookForms, getWebhooks, deleteWebhook } from '../../helpers/backend_helper';
-import FieldMappingModal from './FieldMappingModal';
+import { getFacebookPages, getFacebookForms } from '../../helpers/backend_helper';
 
 // Searchable dropdown component
 const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameKey = 'name', idKey = 'id' }) => {
@@ -27,7 +22,6 @@ const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameK
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -38,7 +32,6 @@ const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameK
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  // Reset search when value changes externally
   useEffect(() => {
     if (!value) setSearch('');
   }, [value]);
@@ -72,7 +65,6 @@ const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameK
 
   return (
     <div ref={wrapperRef} style={{ position: 'relative' }}>
-      {/* Selected value display or search input */}
       {value && !isOpen ? (
         <div
           className='form-control d-flex align-items-center justify-content-between'
@@ -113,7 +105,6 @@ const SearchableSelect = ({ items, value, onChange, placeholder, disabled, nameK
         </div>
       )}
 
-      {/* Dropdown list */}
       {isOpen && (
         <div
           style={{
@@ -175,16 +166,7 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
   const [selectedPage, setSelectedPage] = useState(null);
   const [selectedForm, setSelectedForm] = useState(null);
 
-  // Webhook state
-  const [webhooks, setWebhooks] = useState([]);
-  const [loadingWebhooks, setLoadingWebhooks] = useState(false);
-  const [newWebhookUrl, setNewWebhookUrl] = useState('');
-  const [deletingWebhookId, setDeletingWebhookId] = useState(null);
-
-  // Mapping modal state
-  const [mappingOpen, setMappingOpen] = useState(false);
-
-  // Fetch pages and webhooks when modal opens
+  // Fetch pages when modal opens
   useEffect(() => {
     if (isOpen && connection) {
       setError('');
@@ -194,7 +176,6 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           const pageList = res.data || res || [];
           setPages(pageList);
 
-          // Pre-select page if connection already has one configured
           if (connection?.configuration?.pageId) {
             const existing = pageList.find(
               (p) => p.id === connection.configuration.pageId,
@@ -210,35 +191,14 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           setPages([]);
         })
         .finally(() => setLoadingPages(false));
-
-      // Fetch webhooks
-      fetchWebhooks();
     } else {
-      // Reset state when modal closes
       setPages([]);
       setForms([]);
       setSelectedPage(null);
       setSelectedForm(null);
-      setWebhooks([]);
-      setNewWebhookUrl('');
       setError('');
     }
   }, [isOpen, connection]);
-
-  const fetchWebhooks = () => {
-    const id = connection?._id || connection?.id;
-    if (!id) return;
-    setLoadingWebhooks(true);
-    getWebhooks(id)
-      .then((res) => {
-        setWebhooks(res.data || res || []);
-      })
-      .catch((err) => {
-        console.error('Failed to fetch webhooks:', err);
-        setWebhooks([]);
-      })
-      .finally(() => setLoadingWebhooks(false));
-  };
 
   // Fetch forms when a page is selected
   useEffect(() => {
@@ -254,7 +214,6 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           const formList = res?.leadForms || res || [];
           setForms(formList);
 
-          // Pre-select form if connection already has one configured
           if (connection?.configuration?.formId) {
             const existing = formList.find(
               (f) => f.id === connection.configuration.formId,
@@ -287,43 +246,11 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
     setSelectedForm(form || null);
   };
 
-  const handleAddWebhook = () => {
-    const url = newWebhookUrl.trim();
-    if (!url) return;
-    const exists = webhooks.some((w) => (w.url || w) === url);
-    if (exists) return;
-    setWebhooks((prev) => [...prev, { url, _isNew: true }]);
-    setNewWebhookUrl('');
-  };
-
-  const handleDeleteWebhook = async (webhook, index) => {
-    if (webhook._isNew) {
-      setWebhooks((prev) => prev.filter((_, i) => i !== index));
-      return;
-    }
-
-    const webhookId = webhook._id || webhook.id;
-    if (!webhookId) return;
-
-    setDeletingWebhookId(webhookId);
-    try {
-      await deleteWebhook(webhookId);
-      setWebhooks((prev) => prev.filter((_, i) => i !== index));
-    } catch (err) {
-      console.error('Failed to delete webhook:', err);
-      setError('Failed to delete webhook');
-    } finally {
-      setDeletingWebhookId(null);
-    }
-  };
-
-
   const handleSave = async () => {
     if (!selectedPage || !selectedForm) return;
 
     setSaving(true);
     try {
-      const webhookUrls = webhooks.map((w) => w.url || w);
       await onSave(connection._id || connection.id, {
         _id: connection._id || connection.id,
         pageId: selectedPage.id,
@@ -331,7 +258,6 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
         pageAccessToken: selectedPage.accessToken || selectedPage.access_token,
         formId: selectedForm.id,
         formName: selectedForm.name,
-        webhookUrls,
       });
     } finally {
       setSaving(false);
@@ -432,126 +358,6 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           )}
         </FormGroup>
 
-        {/* Webhook URLs Section */}
-        <div className='mb-3'>
-          <Label className='fw-medium d-flex align-items-center gap-1'>
-            <MdOutlineWebhook />
-            Webhook URLs
-            <span className='text-muted fw-normal' style={{ fontSize: '0.75rem' }}>(Optional)</span>
-          </Label>
-
-          {loadingWebhooks ? (
-            <div className='text-center py-2'>
-              <Spinner size='sm' color='primary' />
-              <span className='text-muted ms-2' style={{ fontSize: '0.85rem' }}>
-                Loading webhooks...
-              </span>
-            </div>
-          ) : (
-            <>
-              {webhooks.length > 0 && (
-                <div className='mb-2'>
-                  {webhooks.map((webhook, index) => {
-                    const webhookUrl = webhook.url || webhook;
-                    const webhookId = webhook._id || webhook.id;
-                    const isDeleting = deletingWebhookId === webhookId;
-
-                    return (
-                      <div
-                        key={webhookId || index}
-                        className='d-flex align-items-center gap-2 mb-2 p-2 rounded'
-                        style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}
-                      >
-                        <MdOutlineWebhook className='text-muted flex-shrink-0' />
-                        <span
-                          className='flex-grow-1 text-truncate'
-                          style={{ fontSize: '0.83rem' }}
-                          title={webhookUrl}
-                        >
-                          {webhookUrl}
-                        </span>
-                        {webhook._isNew && (
-                          <span
-                            className='badge'
-                            style={{
-                              backgroundColor: '#dbeafe',
-                              color: '#2563eb',
-                              fontSize: '0.65rem',
-                            }}
-                          >
-                            New
-                          </span>
-                        )}
-                        <button
-                          className='btn btn-sm p-1 d-flex align-items-center'
-                          style={{
-                            backgroundColor: '#fee2e2',
-                            border: '1px solid #fecaca',
-                            color: '#dc2626',
-                            borderRadius: '4px',
-                          }}
-                          onClick={() => handleDeleteWebhook(webhook, index)}
-                          disabled={isDeleting}
-                          title='Delete webhook'
-                        >
-                          {isDeleting ? (
-                            <Spinner size='sm' style={{ width: '14px', height: '14px' }} />
-                          ) : (
-                            <FaTrashCan style={{ fontSize: '0.75rem' }} />
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {webhooks.length === 0 && (
-                <p className='text-muted mb-2' style={{ fontSize: '0.8rem' }}>
-                  No webhook URLs configured
-                </p>
-              )}
-
-              <div className='d-flex gap-2'>
-                <Input
-                  type='text'
-                  value={newWebhookUrl}
-                  onChange={(e) => setNewWebhookUrl(e.target.value)}
-                  placeholder='https://your-webhook-url.com/endpoint'
-                  style={{ fontSize: '0.85rem' }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddWebhook();
-                    }
-                  }}
-                />
-                <button
-                  className='btn btn-sm btn-soft-primary d-flex align-items-center gap-1 flex-shrink-0'
-                  onClick={handleAddWebhook}
-                  disabled={!newWebhookUrl.trim()}
-                >
-                  <IoMdAdd />
-                  <span>Add</span>
-                </button>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* Field Mapping Button */}
-        {selectedForm && (
-          <div className='mb-3'>
-            <button
-              className='btn btn-sm btn-soft-primary d-flex align-items-center gap-1'
-              onClick={() => setMappingOpen(true)}
-            >
-              <BiLink />
-              <span>Field Mapping</span>
-            </button>
-          </div>
-        )}
-
         {/* Selected Summary */}
         {selectedPage && selectedForm && (
           <div
@@ -566,16 +372,10 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
                 <span className='text-muted'>Page:</span>{' '}
                 <strong>{selectedPage.name}</strong>
               </div>
-              <div className='mb-1'>
+              <div>
                 <span className='text-muted'>Form:</span>{' '}
                 <strong>{selectedForm.name}</strong>
               </div>
-              {webhooks.length > 0 && (
-                <div>
-                  <span className='text-muted'>Webhooks:</span>{' '}
-                  <strong>{webhooks.length}</strong>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -593,14 +393,6 @@ const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
           <span>{saving ? 'Saving...' : 'Save Changes'}</span>
         </button>
       </ModalFooter>
-
-      {/* Field Mapping Modal */}
-      <FieldMappingModal
-        isOpen={mappingOpen}
-        toggle={() => setMappingOpen(false)}
-        connection={connection}
-        formFields={selectedForm?.fields || selectedForm?.questions || []}
-      />
     </Modal>
   );
 };

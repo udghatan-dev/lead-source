@@ -21,6 +21,7 @@ import { listConnections, deleteConnection, updateConnections } from '../../help
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
+import FieldMappingModal from './FieldMappingModal';
 
 //icons
 import { FaMeta } from 'react-icons/fa6';
@@ -35,6 +36,7 @@ import { FiExternalLink } from 'react-icons/fi';
 import { BsGearWideConnected } from 'react-icons/bs';
 import { FaTrashCan } from 'react-icons/fa6';
 import { FiFileText } from 'react-icons/fi';
+import { BiLink } from 'react-icons/bi';
 import { ImMobile } from 'react-icons/im';
 import { IoQrCodeOutline } from 'react-icons/io5';
 import { SiZoho } from 'react-icons/si';
@@ -94,10 +96,11 @@ const LeadSources = (props) => {
   const [showModal, setShowModal] = useState(false);
   const [modalUrl, setModalUrl] = useState('');
 
-  // Configure, Delete & Logs modal state
+  // Configure, Delete, Logs & Mapping modal state
   const [configureOpen, setConfigureOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [logsOpen, setLogsOpen] = useState(false);
+  const [mappingOpen, setMappingOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
 
   // Installed connections state
@@ -327,6 +330,11 @@ const LeadSources = (props) => {
     setLogsOpen(true);
   };
 
+  const handleMappingClick = (connection) => {
+    setSelectedConnection(connection);
+    setMappingOpen(true);
+  };
+
   const handleDeleteConfirm = async (id) => {
     await deleteConnection(id);
     setDeleteOpen(false);
@@ -475,37 +483,76 @@ const LeadSources = (props) => {
                             <p className='card-text text-muted mb-2' style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
                               {connection.description || connection.source}
                             </p>
-                            <div className='d-flex gap-2'>
+                            <div className='d-flex align-items-center justify-content-evenly mt-1'>
                               <button
-                                className='btn btn-sm btn-soft-dark d-flex align-items-center gap-1'
-                                style={{ fontSize: '0.8rem', padding: '0.3rem 0.5rem' }}
+                                className='btn btn-sm d-flex align-items-center justify-content-center'
+                                title='Configure'
+                                style={{
+                                  width: '34px', height: '34px', borderRadius: '8px',
+                                  backgroundColor: '#f1f5f9', color: '#475569',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#475569'; }}
                                 onClick={() => handleConfigure(connection)}
                               >
-                                <BsGearWideConnected />
-                                <span>Configure</span>
+                                <BsGearWideConnected size={15} />
                               </button>
                               <button
-                                className='btn btn-sm btn-soft-primary d-flex align-items-center gap-1'
-                                style={{ fontSize: '0.8rem', padding: '0.3rem 0.5rem' }}
+                                className='btn btn-sm d-flex align-items-center justify-content-center'
+                                title='Webhooks'
+                                style={{
+                                  width: '34px', height: '34px', borderRadius: '8px',
+                                  backgroundColor: '#eff6ff', color: '#3b82f6',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#eff6ff'; e.currentTarget.style.color = '#3b82f6'; }}
+                                onClick={() => history.push(`/settings/${connection._id || connection.id}/webhook`)}
+                              >
+                                <MdOutlineWebhook size={15} />
+                              </button>
+                              <button
+                                className='btn btn-sm d-flex align-items-center justify-content-center'
+                                title='Field Mapping'
+                                style={{
+                                  width: '34px', height: '34px', borderRadius: '8px',
+                                  backgroundColor: '#f5f3ff', color: '#7c3aed',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f5f3ff'; e.currentTarget.style.color = '#7c3aed'; }}
+                                onClick={() => handleMappingClick(connection)}
+                              >
+                                <BiLink size={15} />
+                              </button>
+                              <button
+                                className='btn btn-sm d-flex align-items-center justify-content-center'
+                                title='View Logs'
+                                style={{
+                                  width: '34px', height: '34px', borderRadius: '8px',
+                                  backgroundColor: '#ecfdf5', color: '#059669',
+                                  transition: 'all 0.2s',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#059669'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ecfdf5'; e.currentTarget.style.color = '#059669'; }}
                                 onClick={() => handleLogsClick(connection)}
                               >
-                                <FiFileText />
-                                <span>Logs</span>
+                                <FiFileText size={15} />
                               </button>
                               <button
-                                className='btn btn-sm d-flex align-items-center gap-1'
+                                className='btn btn-sm d-flex align-items-center justify-content-center'
+                                title='Remove'
                                 style={{
-                                  backgroundColor: '#fee2e2',
-                                  border: '1px solid #fecaca',
-                                  color: '#dc2626',
-                                  fontWeight: '500',
-                                  fontSize: '0.8rem',
-                                  padding: '0.3rem 0.5rem',
+                                  width: '34px', height: '34px', borderRadius: '8px',
+                                  backgroundColor: '#fef2f2', color: '#dc2626',
+                                  transition: 'all 0.2s',
                                 }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#dc2626'; e.currentTarget.style.color = '#fff'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; }}
                                 onClick={() => handleDeleteClick(connection)}
                               >
-                                <FaTrashCan />
-                                <span>Remove</span>
+                                <FaTrashCan size={14} />
                               </button>
                             </div>
                           </div>
@@ -686,6 +733,13 @@ const LeadSources = (props) => {
             toggle={() => { setConfigureOpen(false); setSelectedConnection(null); }}
             connection={selectedConnection}
             onSave={handleConfigureSave}
+          />
+
+          {/* Field Mapping Modal */}
+          <FieldMappingModal
+            isOpen={mappingOpen}
+            toggle={() => { setMappingOpen(false); setSelectedConnection(null); }}
+            connection={selectedConnection}
           />
 
           {/* Logs Modal */}

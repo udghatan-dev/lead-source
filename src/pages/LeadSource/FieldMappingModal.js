@@ -12,11 +12,14 @@ import {
 import { BiLink, BiUnlink } from 'react-icons/bi';
 import { IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
-import { getCrmFields, getFieldMappings, upsertFieldMappings } from '../../helpers/backend_helper';
+import { HiOutlineUserAdd } from 'react-icons/hi';
+import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages } from '../../helpers/backend_helper';
 
-const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
+const FieldMappingModal = ({ isOpen, toggle, connection }) => {
   const [crmFields, setCrmFields] = useState([]);
+  const [formFields, setFormFields] = useState([]);
   const [loadingCrm, setLoadingCrm] = useState(false);
+  const [loadingForms, setLoadingForms] = useState(false);
   const [loadingMappings, setLoadingMappings] = useState(false);
   const [crmSearch, setCrmSearch] = useState('');
   const [crmPage, setCrmPage] = useState(1);
@@ -28,6 +31,8 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
   const [mappings, setMappings] = useState({});
   // Store full mapping data for building save payload
   const [mappingDetails, setMappingDetails] = useState({});
+  // Contact creation toggle
+  const [isContactCreateOnNewLead, setIsContactCreateOnNewLead] = useState(false);
 
   const connectionId = connection?._id || connection?.id;
 
@@ -46,7 +51,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
       .finally(() => setLoadingCrm(false));
   }, []);
 
-  // Fetch CRM fields and existing mappings on open
+  // Fetch CRM fields, form fields, and existing mappings on open
   useEffect(() => {
     if (isOpen && connectionId) {
       setError('');
@@ -54,11 +59,46 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
       setCrmPage(1);
       fetchCrmFields(1, '');
 
+      // Fetch form fields via POST /api/auth/facebook/forms
+      const config = connection?.configuration || {};
+      if (config.pageId) {
+        setLoadingForms(true);
+        getFacebookPages()
+          .then((pagesList) => {
+            const existing = (pagesList || []).find((p) => p.id === config.pageId);
+            if (existing) {
+              return getFacebookForms({
+                pageId: config.pageId,
+                pageAccessToken: existing.accessToken || existing.access_token || existing.pageAccessToken,
+              });
+            }
+            return null;
+          })
+          .then((res) => {
+            if (res) {
+              const formList = res?.leadForms || res?.data || res || [];
+              const selectedForm = formList.find((f) => f.id === config.formId);
+              const questions = selectedForm?.questions || [];
+              setFormFields(questions);
+            } else {
+              setFormFields([]);
+            }
+          })
+          .catch((err) => {
+            console.error('Failed to fetch form fields:', err);
+            setFormFields([]);
+          })
+          .finally(() => setLoadingForms(false));
+      } else {
+        setFormFields([]);
+      }
+
       // Fetch existing mappings from API
       setLoadingMappings(true);
       getFieldMappings(connectionId)
         .then((res) => {
-          const existingMappings = res.data?.mappings || res.mappings || [];
+          const data = res.data || res || {};
+          const existingMappings = data.mappings || [];
           const mapState = {};
           const detailState = {};
           existingMappings.forEach((m) => {
@@ -68,20 +108,29 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
           });
           setMappings(mapState);
           setMappingDetails(detailState);
+          // Load existing isContactCreateOnNewLead setting
+          if (typeof data.isContactCreateOnNewLead === 'boolean') {
+            setIsContactCreateOnNewLead(data.isContactCreateOnNewLead);
+          } else {
+            setIsContactCreateOnNewLead(false);
+          }
         })
         .catch((err) => {
           console.error('Failed to fetch field mappings:', err);
           setMappings({});
           setMappingDetails({});
+          setIsContactCreateOnNewLead(false);
         })
         .finally(() => setLoadingMappings(false));
     } else {
       setCrmFields([]);
+      setFormFields([]);
       setMappings({});
       setMappingDetails({});
+      setIsContactCreateOnNewLead(false);
       setError('');
     }
-  }, [isOpen, connectionId, fetchCrmFields]);
+    }, [isOpen, connectionId, connection, fetchCrmFields]);
 
   const handleCrmSearch = (value) => {
     setCrmSearch(value);
@@ -112,7 +161,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
     try {
       const mappingsPayload = Object.entries(mappings).map(([crmFieldId, formFieldKey]) => {
         const crmField = crmFields.find((f) => (f._id || f.id || f.key) === crmFieldId);
-        const formField = (formFields || []).find(
+        const formField = formFields.find(
           (f) => (f.key || f.id || f.name) === formFieldKey,
         );
         return {
@@ -128,6 +177,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
       await upsertFieldMappings({
         connectionId,
         mappings: mappingsPayload,
+        isContactCreateOnNewLead,
       });
 
       toggle();
@@ -140,9 +190,9 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
   };
 
   const mappedCount = Object.keys(mappings).length;
-  const availableFormFields = formFields || [];
 
-  const isLoading = loadingCrm || loadingMappings;
+  const isLoading = loadingCrm || loadingMappings || loadingForms;
+  console.log(isContactCreateOnNewLead, 'isContactCreateOnNewLead');
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered size='md'>
@@ -166,6 +216,60 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
             {error}
           </Alert>
         )}
+
+        {/* Contact Creation Toggle */}
+        <div
+          className='d-flex align-items-center justify-content-between p-3 rounded mb-3'
+          style={{
+            backgroundColor: isContactCreateOnNewLead ? '#f0fdf4' : '#f8fafc',
+            border: `1px solid ${isContactCreateOnNewLead ? '#bbf7d0' : '#e2e8f0'}`,
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <div className='d-flex align-items-center gap-2'>
+            <HiOutlineUserAdd
+              style={{
+                fontSize: '1.2rem',
+                color: isContactCreateOnNewLead ? '#16a34a' : '#64748b',
+              }}
+            />
+            <div>
+              <div className='fw-medium' style={{ fontSize: '0.85rem' }}>
+                Auto-create Contact
+              </div>
+              <div className='text-muted' style={{ fontSize: '0.75rem' }}>
+                Automatically create a CRM contact when a new lead arrives
+              </div>
+            </div>
+          </div>
+          <div
+            onClick={() => setIsContactCreateOnNewLead((prev) => !prev)}
+            style={{
+              width: '42px',
+              height: '24px',
+              borderRadius: '12px',
+              backgroundColor: isContactCreateOnNewLead ? '#22c55e' : '#cbd5e1',
+              position: 'relative',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s ease',
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                backgroundColor: '#fff',
+                position: 'absolute',
+                top: '3px',
+                left: isContactCreateOnNewLead ? '21px' : '3px',
+                transition: 'left 0.2s ease',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+              }}
+            />
+          </div>
+        </div>
 
         {/* CRM Search */}
         <div className='position-relative mb-3'>
@@ -200,6 +304,13 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
           </p>
         ) : (
           <>
+            {/* Form fields info */}
+            {formFields.length === 0 && (
+              <Alert color='warning' className='mb-3' style={{ fontSize: '0.8rem' }}>
+                No form fields found. Make sure a page and form are configured for this connection.
+              </Alert>
+            )}
+
             {/* Mapping Table */}
             <div style={{ maxHeight: '420px', overflowY: 'auto' }}>
               <table className='table table-sm align-middle mb-0'>
@@ -242,7 +353,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
                               style={{ fontSize: '0.8rem' }}
                             >
                               <option value=''>-- Not mapped --</option>
-                              {availableFormFields.map((ff) => {
+                              {formFields.map((ff) => {
                                 const ffKey = ff.key || ff.id || ff.name;
                                 return (
                                   <option key={ffKey} value={ffKey}>
@@ -300,7 +411,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection, formFields }) => {
         <button
           className='btn btn-sm btn-primary d-flex align-items-center gap-1'
           onClick={handleSave}
-          disabled={saving || mappedCount === 0}
+          disabled={saving}
         >
           {saving ? <Spinner size='sm' /> : <BiLink />}
           <span>{saving ? 'Saving...' : `Save Mappings (${mappedCount})`}</span>
@@ -314,7 +425,6 @@ FieldMappingModal.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   toggle: PropTypes.func.isRequired,
   connection: PropTypes.object,
-  formFields: PropTypes.array,
 };
 
 export default FieldMappingModal;
