@@ -13,7 +13,8 @@ import { IoMdAdd } from 'react-icons/io';
 import { FaTrashCan } from 'react-icons/fa6';
 import { FiEdit2 } from 'react-icons/fi';
 import { IoArrowBack } from 'react-icons/io5';
-import { getWebhooks, deleteWebhook } from '../../helpers/backend_helper';
+import { getWebhooks, createWebhook, editWebhook, deleteWebhook } from '../../helpers/backend_helper';
+import DeleteConfirmModal from './DeleteConfirmModal';
 
 const WebhookPage = () => {
   const { id } = useParams();
@@ -25,7 +26,9 @@ const WebhookPage = () => {
   const [newUrl, setNewUrl] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editUrl, setEditUrl] = useState('');
-  const [deletingId, setDeletingId] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [selectedWebhook, setSelectedWebhook] = useState(null);
+  const [selectedIndex, setSelectedIndex] = useState(null);
   const [saving, setSaving] = useState(false);
 
   const fetchWebhooks = useCallback(() => {
@@ -47,7 +50,7 @@ const WebhookPage = () => {
     fetchWebhooks();
   }, [fetchWebhooks]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const url = newUrl.trim();
     if (!url) return;
     const exists = webhooks.some((w) => (w.url || w) === url);
@@ -55,29 +58,50 @@ const WebhookPage = () => {
       setError('This webhook URL already exists');
       return;
     }
-    setWebhooks((prev) => [...prev, { url, _isNew: true }]);
-    setNewUrl('');
-    setError('');
+    setSaving(true);
+    try {
+      await createWebhook({ connectionId: id, webhookUrl: url });
+      setNewUrl('');
+      setError('');
+      fetchWebhooks();
+    } catch (err) {
+      console.error('Failed to create webhook:', err);
+      setError('Failed to create webhook');
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleDelete = async (webhook, index) => {
+  const handleDeleteClick = (webhook, index) => {
+    setSelectedWebhook(webhook);
+    setSelectedIndex(index);
+    setDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    const webhook = selectedWebhook;
+    const index = selectedIndex;
+
     if (webhook._isNew) {
       setWebhooks((prev) => prev.filter((_, i) => i !== index));
+      setDeleteOpen(false);
+      setSelectedWebhook(null);
       return;
     }
 
     const webhookId = webhook._id || webhook.id;
     if (!webhookId) return;
 
-    setDeletingId(webhookId);
     try {
       await deleteWebhook(webhookId);
-      setWebhooks((prev) => prev.filter((_, i) => i !== index));
+      fetchWebhooks();
     } catch (err) {
       console.error('Failed to delete webhook:', err);
       setError('Failed to delete webhook');
     } finally {
-      setDeletingId(null);
+      setDeleteOpen(false);
+      setSelectedWebhook(null);
+      setSelectedIndex(null);
     }
   };
 
@@ -86,14 +110,23 @@ const WebhookPage = () => {
     setEditUrl(webhook.url || webhook);
   };
 
-  const handleEditSave = (index) => {
+  const handleEditSave = async (webhook, index) => {
     const url = editUrl.trim();
     if (!url) return;
-    setWebhooks((prev) =>
-      prev.map((w, i) => (i === index ? { ...w, url, _isUpdated: true } : w)),
-    );
-    setEditingId(null);
-    setEditUrl('');
+    const webhookId = webhook._id || webhook.id;
+    if (!webhookId) return;
+    setSaving(true);
+    try {
+      await editWebhook(webhookId, { connectionId: id, webhookUrl: url });
+      setEditingId(null);
+      setEditUrl('');
+      fetchWebhooks();
+    } catch (err) {
+      console.error('Failed to edit webhook:', err);
+      setError('Failed to update webhook');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleEditCancel = () => {
@@ -155,10 +188,10 @@ const WebhookPage = () => {
             <button
               className='btn btn-primary d-flex align-items-center gap-1 flex-shrink-0'
               onClick={handleAdd}
-              disabled={!newUrl.trim()}
+              disabled={!newUrl.trim() || saving}
             >
-              <IoMdAdd />
-              <span>Add</span>
+              {saving ? <Spinner size='sm' style={{ width: '14px', height: '14px' }} /> : <IoMdAdd />}
+              <span>{saving ? 'Adding...' : 'Add'}</span>
             </button>
           </div>
         </div>
@@ -179,7 +212,6 @@ const WebhookPage = () => {
             {webhooks.map((webhook, index) => {
               const webhookUrl = webhook.url || webhook;
               const webhookId = webhook._id || webhook.id;
-              const isDeleting = deletingId === webhookId;
               const isEditing = editingId === webhookId;
 
               return (
@@ -207,14 +239,15 @@ const WebhookPage = () => {
                           onChange={(e) => setEditUrl(e.target.value)}
                           style={{ fontSize: '0.85rem' }}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') handleEditSave(index);
+                            if (e.key === 'Enter') handleEditSave(webhook, index);
                             if (e.key === 'Escape') handleEditCancel();
                           }}
                           autoFocus
                         />
                         <button
                           className='btn btn-sm btn-primary flex-shrink-0'
-                          onClick={() => handleEditSave(index)}
+                          onClick={() => handleEditSave(webhook, index)}
+                          disabled={saving}
                         >
                           Save
                         </button>
@@ -273,15 +306,10 @@ const WebhookPage = () => {
                           color: '#dc2626',
                           borderRadius: '4px',
                         }}
-                        onClick={() => handleDelete(webhook, index)}
-                        disabled={isDeleting}
+                        onClick={() => handleDeleteClick(webhook, index)}
                         title='Delete webhook'
                       >
-                        {isDeleting ? (
-                          <Spinner size='sm' style={{ width: '14px', height: '14px' }} />
-                        ) : (
-                          <FaTrashCan style={{ fontSize: '0.8rem' }} />
-                        )}
+                        <FaTrashCan style={{ fontSize: '0.8rem' }} />
                       </button>
                     </div>
                   )}
@@ -291,6 +319,13 @@ const WebhookPage = () => {
           </div>
         )}
       </Container>
+
+      <DeleteConfirmModal
+        isOpen={deleteOpen}
+        toggle={() => { setDeleteOpen(false); setSelectedWebhook(null); setSelectedIndex(null); }}
+        connection={selectedWebhook ? { _id: selectedWebhook._id || selectedWebhook.id, name: selectedWebhook.url || 'Webhook' } : null}
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 };

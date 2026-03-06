@@ -46,6 +46,7 @@ import { FaIndustry } from 'react-icons/fa';
 import { FaHandshake } from 'react-icons/fa';
 import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
+import { getSessionToken } from '../../helpers/backend_helper';
 
 const sourceIconMap = {
   // camelCase keys (used in allSources)
@@ -342,10 +343,10 @@ const LeadSources = (props) => {
     fetchConnections(currentPage);
   };
 
-  function handleCreateNewConnection(source) {
+  async function handleCreateNewConnection(source) {
     if (source.key === 'facebookLeadAds') {
-      const token = localStorage.getItem('authToken') || '';
-      setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token}`);
+      const token = await getSessionToken({leadSourceId: 'facebook_leadgen'});
+      setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token?.session}`);
       setShowModal(true);
     } else {
       history.push('/settings/' + source.key, { source });
