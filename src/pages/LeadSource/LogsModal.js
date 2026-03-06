@@ -17,7 +17,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
   const [pagination, setPagination] = useState({
     total: 0,
     page: 1,
-    limit: 10,
+    limit: 5,
     totalPages: 0,
   });
 
@@ -25,11 +25,11 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
     (pageNum = 1) => {
       if (!connection) return;
       setLoading(true);
-      getWebhookLogs({ page: pageNum, limit: 10, pageId: connection.configuration?.pageId, formId: connection.configuration?.formId })
+      getWebhookLogs({ page: pageNum, limit: 5, pageId: connection.configuration?.pageId, formId: connection.configuration?.formId })
         .then((res) => {
           setLogs(res.data || []);
           setPagination(
-            res.pagination || { total: 0, page: pageNum, limit: 10, totalPages: 0 },
+            res.pagination || { total: 0, page: pageNum, limit: 5, totalPages: 0 },
           );
         })
         .catch((err) => {
@@ -48,7 +48,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
     } else {
       setLogs([]);
       setPage(1);
-      setPagination({ total: 0, page: 1, limit: 10, totalPages: 0 });
+      setPagination({ total: 0, page: 1, limit: 5, totalPages: 0 });
     }
   }, [isOpen, connection]);
 
@@ -121,6 +121,9 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
           <span className='text-muted' style={{ fontSize: '0.8rem', fontWeight: 400 }}>
             {connection?.configuration?.pageName || connection.source}
           </span>
+          <span className='text-muted' style={{ fontSize: '0.8rem', fontWeight: 400 }}>
+            {connection?.configuration?.formName || connection.source}
+          </span>
         </div>
       </ModalHeader>
       <ModalBody>
@@ -144,8 +147,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
                     <th style={{ fontWeight: 600 }}>Source</th>
                     <th style={{ fontWeight: 600 }}>Status</th>
                     <th style={{ fontWeight: 600 }}>Leadgen ID</th>
-                    <th style={{ fontWeight: 600 }}>Page ID</th>
-                    <th style={{ fontWeight: 600 }}>Form ID</th>
+                    <th style={{ fontWeight: 600 }}>Payload</th>
                     <th style={{ fontWeight: 600 }}>Date</th>
                   </tr>
                 </thead>
@@ -165,10 +167,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
                         {log.leadgenId || '-'}
                       </td>
                       <td className='text-muted' style={{ fontSize: '0.78rem' }}>
-                        {log.pageId || '-'}
-                      </td>
-                      <td className='text-muted' style={{ fontSize: '0.78rem' }}>
-                        {log.rawPayload?.entry?.[0]?.changes?.[0]?.value?.form_id || '-'}
+                        {(log?.lead?.fieldData && JSON.stringify(log.lead.fieldData)) || '-'}
                       </td>
                       <td className='text-muted' style={{ whiteSpace: 'nowrap', fontSize: '0.78rem' }}>
                         {formatDate(log.createdAt)}
