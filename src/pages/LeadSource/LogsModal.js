@@ -25,7 +25,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
     (pageNum = 1) => {
       if (!connection) return;
       setLoading(true);
-      getWebhookLogs({ page: pageNum, limit: 5, pageId: connection.configuration?.pageId, formId: connection.configuration?.formId })
+      getWebhookLogs({ page: pageNum, limit: 5, connectionId: connection._id })
         .then((res) => {
           setLogs(res.data || []);
           setPagination(
