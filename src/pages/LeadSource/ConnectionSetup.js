@@ -9,10 +9,12 @@ import {
   Input,
   Label,
   FormGroup,
+  Alert,
 } from 'reactstrap';
 
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
+import { connectIndiamart } from '../../helpers/backend_helper';
 
 //icons
 import { FaMeta } from 'react-icons/fa6';
@@ -65,13 +67,27 @@ const ConnectionSetup = () => {
   const [apiKey, setApiKey] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSave = () => {
+  const isIndiaMart = sourceKey === 'indiaMart';
+
+  const handleSave = async () => {
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    setError('');
+    try {
+      if (isIndiaMart) {
+        await connectIndiamart({
+          accountName: connectionName,
+          crmKey: apiKey,
+        });
+      }
       history.push('/settings');
-    }, 1000);
+    } catch (err) {
+      console.error('Failed to save connection:', err);
+      setError(err?.msg || err?.response?.data?.msg || 'Failed to save connection. Please check your credentials and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -120,6 +136,12 @@ const ConnectionSetup = () => {
             </CardBody>
           </Card>
 
+          {error && (
+            <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setError('')}>
+              {error}
+            </Alert>
+          )}
+
           {/* Connection Form */}
           <Card className='border'>
             <CardBody>
@@ -142,38 +164,42 @@ const ConnectionSetup = () => {
 
               <FormGroup className='mb-3'>
                 <Label for='apiKey' className='fw-medium'>
-                  API Key
+                  {isIndiaMart ? 'CRM Key' : 'API Key'}
                 </Label>
                 <Input
                   type='password'
                   id='apiKey'
-                  placeholder='Enter your API key'
+                  placeholder={isIndiaMart ? 'Enter your IndiaMART CRM key' : 'Enter your API key'}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                 />
                 <small className='text-muted'>
-                  You can find your API key in the {source.name} dashboard settings.
+                  {isIndiaMart
+                    ? 'You can find your CRM key in your IndiaMART seller dashboard under CRM settings.'
+                    : `You can find your API key in the ${source.name} dashboard settings.`}
                 </small>
               </FormGroup>
 
-              <FormGroup className='mb-4'>
-                <Label for='webhookUrl' className='fw-medium'>
-                  Webhook URL (Optional)
-                </Label>
-                <Input
-                  type='text'
-                  id='webhookUrl'
-                  placeholder='https://...'
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                />
-              </FormGroup>
+              {!isIndiaMart && (
+                <FormGroup className='mb-4'>
+                  <Label for='webhookUrl' className='fw-medium'>
+                    Webhook URL (Optional)
+                  </Label>
+                  <Input
+                    type='text'
+                    id='webhookUrl'
+                    placeholder='https://...'
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                  />
+                </FormGroup>
+              )}
 
               <div className='d-flex gap-2'>
                 <button
                   className='btn btn-primary d-flex align-items-center gap-2'
                   onClick={handleSave}
-                  disabled={isSubmitting || !connectionName}
+                  disabled={isSubmitting || !connectionName || !apiKey}
                 >
                   {isSubmitting ? (
                     <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>

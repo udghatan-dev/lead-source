@@ -17,11 +17,12 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections, deleteConnection, updateConnections } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, deleteIndiamartConnection, pullIndiamartLeads, updateConnections } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
 import FieldMappingModal from './FieldMappingModal';
+import ConnectionCard from './ConnectionCard';
 
 //icons
 import { FaMeta } from 'react-icons/fa6';
@@ -34,9 +35,6 @@ import { SiGoogleforms } from 'react-icons/si';
 import { FaYoutube } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
 import { BsGearWideConnected } from 'react-icons/bs';
-import { FaTrashCan } from 'react-icons/fa6';
-import { FiFileText } from 'react-icons/fi';
-import { BiLink } from 'react-icons/bi';
 import { ImMobile } from 'react-icons/im';
 import { IoQrCodeOutline } from 'react-icons/io5';
 import { SiZoho } from 'react-icons/si';
@@ -77,7 +75,7 @@ const sourceIconMap = {
   ocr_app: <IoQrCodeOutline />,
   zoho_crm: <SiZoho />,
   hubspot_crm: <FaHubspot />,
-  india_mart: <FaIndustry />,
+  indiamart: <FaIndustry />,
   trade_india: <FaHandshake />,
   magic_bricks: <BsBuildingsFill />,
 };
@@ -337,10 +335,26 @@ const LeadSources = (props) => {
   };
 
   const handleDeleteConfirm = async (id) => {
-    await deleteConnection(id);
+    const provider = selectedConnection?.provider || selectedConnection?.source;
+    if (provider === 'india_mart' || provider === 'indiaMart') {
+      await deleteIndiamartConnection(id);
+    } else {
+      await deleteConnection(id);
+    }
     setDeleteOpen(false);
     setSelectedConnection(null);
     fetchConnections(currentPage);
+  };
+
+  const handleSyncLeads = async (connection) => {
+    const secret = connection?.configuration?.crmKey;
+    if (!secret) return;
+    try {
+      await pullIndiamartLeads(secret);
+      fetchConnections(currentPage);
+    } catch (err) {
+      console.error('Failed to sync leads:', err);
+    }
   };
 
   async function handleCreateNewConnection(source) {
@@ -349,7 +363,8 @@ const LeadSources = (props) => {
       setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token?.session}`);
       setShowModal(true);
     } else {
-      history.push('/settings/' + source.key, { source });
+      const { icon, ...sourceData } = source;
+      history.push('/settings/' + source.key, { source: sourceData });
     }
   }
 
@@ -427,138 +442,16 @@ const LeadSources = (props) => {
                 <>
                   <div className='row g-4'>
                     {connections.map((connection) => (
-                      <div key={connection._id || connection.id} className='col-md-6 col-lg-4 col-xl-3'>
-                        <div
-                          className='card border-1 mb-1'
-                          style={{
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                            transition: 'all 0.2s',
-                            cursor: 'pointer',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.boxShadow = '0 4px 6px rgba(0,0,0,0.15)';
-                            e.currentTarget.style.transform = 'translateY(-2px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                          }}
-                        >
-                          <div className='card-body p-3'>
-                            <div className='d-flex align-items-start mb-2'>
-                              <div
-                                className='me-2'
-                                style={{
-                                  fontSize: '1.5rem',
-                                  background: '#f1f5f9',
-                                  borderRadius: '6px',
-                                  padding: '0.4rem',
-                                  width: '45px',
-                                  height: '45px',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                }}
-                              >
-                                {getSourceIcon(connection)}
-                              </div>
-                              <div className='flex-grow-1'>
-                                <h6 className='card-title mb-1' style={{ color: '#1e293b', fontWeight: '600', fontSize: '0.95rem' }}>
-                                  {connection?.configuration?.pageName || connection.source} {" - "}
-                                  {connection?.configuration?.formName || connection.source}
-                                </h6>
-                                <span
-                                  className='badge'
-                                  style={{
-                                    backgroundColor: connection.status === 'active' ? '#22c55e' : '#f59e0b',
-                                    color: 'white',
-                                    fontSize: '0.7rem',
-                                    fontWeight: '500',
-                                    padding: '0.15rem 0.5rem',
-                                  }}
-                                >
-                                  {connection.status || 'active'}
-                                </span>
-                              </div>
-                            </div>
-                            <p className='card-text text-muted mb-2' style={{ fontSize: '0.8rem', lineHeight: '1.4' }}>
-                              {connection.description || connection.source}
-                            </p>
-                            <div className='d-flex align-items-center justify-content-evenly mt-1'>
-                              <button
-                                className='btn btn-sm d-flex align-items-center justify-content-center'
-                                title='Configure'
-                                style={{
-                                  width: '34px', height: '34px', borderRadius: '8px',
-                                  backgroundColor: '#f1f5f9', color: '#475569',
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#334155'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9'; e.currentTarget.style.color = '#475569'; }}
-                                onClick={() => handleConfigure(connection)}
-                              >
-                                <BsGearWideConnected size={15} />
-                              </button>
-                              <button
-                                className='btn btn-sm d-flex align-items-center justify-content-center'
-                                title='Webhooks'
-                                style={{
-                                  width: '34px', height: '34px', borderRadius: '8px',
-                                  backgroundColor: '#eff6ff', color: '#3b82f6',
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#3b82f6'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#eff6ff'; e.currentTarget.style.color = '#3b82f6'; }}
-                                onClick={() => history.push(`/settings/${connection._id || connection.id}/webhook`)}
-                              >
-                                <MdOutlineWebhook size={15} />
-                              </button>
-                              <button
-                                className='btn btn-sm d-flex align-items-center justify-content-center'
-                                title='Field Mapping'
-                                style={{
-                                  width: '34px', height: '34px', borderRadius: '8px',
-                                  backgroundColor: '#f5f3ff', color: '#7c3aed',
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#7c3aed'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#f5f3ff'; e.currentTarget.style.color = '#7c3aed'; }}
-                                onClick={() => handleMappingClick(connection)}
-                              >
-                                <BiLink size={15} />
-                              </button>
-                              <button
-                                className='btn btn-sm d-flex align-items-center justify-content-center'
-                                title='View Logs'
-                                style={{
-                                  width: '34px', height: '34px', borderRadius: '8px',
-                                  backgroundColor: '#ecfdf5', color: '#059669',
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#059669'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#ecfdf5'; e.currentTarget.style.color = '#059669'; }}
-                                onClick={() => handleLogsClick(connection)}
-                              >
-                                <FiFileText size={15} />
-                              </button>
-                              <button
-                                className='btn btn-sm d-flex align-items-center justify-content-center'
-                                title='Remove'
-                                style={{
-                                  width: '34px', height: '34px', borderRadius: '8px',
-                                  backgroundColor: '#fef2f2', color: '#dc2626',
-                                  transition: 'all 0.2s',
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#dc2626'; e.currentTarget.style.color = '#fff'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; }}
-                                onClick={() => handleDeleteClick(connection)}
-                              >
-                                <FaTrashCan size={14} />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      <ConnectionCard
+                        key={connection._id || connection.id}
+                        connection={connection}
+                        icon={getSourceIcon(connection)}
+                        onConfigure={handleConfigure}
+                        onFieldMapping={handleMappingClick}
+                        onLogs={handleLogsClick}
+                        onSyncLeads={handleSyncLeads}
+                        onDelete={handleDeleteClick}
+                      />
                     ))}
                   </div>
 

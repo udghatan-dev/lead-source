@@ -314,6 +314,14 @@ export const createWebhook = (data) => leadsourceApi.create(lsUrl.WEBHOOK_CREATE
 export const editWebhook = (id, data) => leadsourceApi.create(`${lsUrl.WEBHOOK_EDIT}/${id}`, data);
 export const deleteWebhook = (id) => leadsourceApi.delete(`${lsUrl.WEBHOOK_DELETE}/${id}`);
 export const getWebhookLogs = (data) => leadsourceApi.get(lsUrl.WEBHOOK_LOGS, data);
+
+// IndiaMART
+export const connectIndiamart = (data) => leadsourceApi.create(lsUrl.INDIAMART_CONNECT, data);
+export const updateIndiamartConnection = (id, data) => leadsourceApi.update(`${lsUrl.INDIAMART_CONNECT_UPDATE}/${id}`, data);
+export const getIndiamartConnection = (id) => leadsourceApi.get(`${lsUrl.INDIAMART_CONNECTION}/${id}`);
+export const deleteIndiamartConnection = (id) => leadsourceApi.delete(`${lsUrl.INDIAMART_DELETE}/${id}/delete-selection`);
+export const pullIndiamartLeads = () => leadsourceApi.get(lsUrl.INDIAMART_PULL_LEADS);
+
 export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
 export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);
