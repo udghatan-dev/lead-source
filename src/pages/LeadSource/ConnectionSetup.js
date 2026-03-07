@@ -66,10 +66,15 @@ const ConnectionSetup = () => {
   const [connectionName, setConnectionName] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [fetchLeadsSince, setFetchLeadsSince] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const isIndiaMart = sourceKey === 'indiaMart';
+
+  // Date limits for fetchLeadsSince (last 365 days)
+  const today = new Date().toISOString().split('T')[0];
+  const minDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   const handleSave = async () => {
     setIsSubmitting(true);
@@ -79,6 +84,7 @@ const ConnectionSetup = () => {
         await connectIndiamart({
           accountName: connectionName,
           crmKey: apiKey,
+          ...(fetchLeadsSince && { fetchLeadsSince }),
         });
       }
       history.push('/settings');
@@ -179,6 +185,25 @@ const ConnectionSetup = () => {
                     : `You can find your API key in the ${source.name} dashboard settings.`}
                 </small>
               </FormGroup>
+
+              {isIndiaMart && (
+                <FormGroup className='mb-3'>
+                  <Label for='fetchLeadsSince' className='fw-medium'>
+                    Fetch Leads Since
+                  </Label>
+                  <Input
+                    type='date'
+                    id='fetchLeadsSince'
+                    value={fetchLeadsSince}
+                    onChange={(e) => setFetchLeadsSince(e.target.value)}
+                    min={minDate}
+                    max={today}
+                  />
+                  <small className='text-muted'>
+                    Select a date within the last 365 days to fetch leads from.
+                  </small>
+                </FormGroup>
+              )}
 
               {!isIndiaMart && (
                 <FormGroup className='mb-4'>

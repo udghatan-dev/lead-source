@@ -17,13 +17,18 @@ const IndiamartConfigForm = ({ connection, onSave, toggle }) => {
   const config = connection?.configuration || {};
   const [accountName, setAccountName] = useState(config.accountName || '');
   const [crmKey, setCrmKey] = useState(config.crmKey || '');
+  const [fetchLeadsSince, setFetchLeadsSince] = useState(config.fetchLeadsSince ? config.fetchLeadsSince.split('T')[0] : '');
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
+  const today = new Date().toISOString().split('T')[0];
+  const minDate = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
   useEffect(() => {
     setAccountName(config.accountName || '');
     setCrmKey(config.crmKey || '');
+    setFetchLeadsSince(config.fetchLeadsSince ? config.fetchLeadsSince.split('T')[0] : '');
     setError('');
   }, [connection]);
 
@@ -35,11 +40,13 @@ const IndiamartConfigForm = ({ connection, onSave, toggle }) => {
       await updateIndiamartConnection(connection._id || connection.id, {
         accountName: accountName.trim(),
         crmKey: crmKey.trim(),
+        ...(fetchLeadsSince && { fetchLeadsSince }),
       });
       await onSave(connection._id || connection.id, {
         _id: connection._id || connection.id,
         crmKey: crmKey.trim(),
         accountName: accountName.trim(),
+        ...(fetchLeadsSince && { fetchLeadsSince }),
       });
     } catch (err) {
       setError(err?.response?.data?.msg || 'Failed to update IndiaMART connection. Please check your CRM key.');
@@ -70,6 +77,11 @@ const IndiamartConfigForm = ({ connection, onSave, toggle }) => {
               <div>
                 <span className='text-muted'>CRM Key:</span> <strong>{config.crmKey ? '••••••••' + config.crmKey.slice(-4) : '-'}</strong>
               </div>
+              {config.fetchLeadsSince && (
+                <div>
+                  <span className='text-muted'>Fetch Since:</span> <strong>{config.fetchLeadsSince.split('T')[0]}</strong>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -112,6 +124,24 @@ const IndiamartConfigForm = ({ connection, onSave, toggle }) => {
           </div>
           <small className='text-muted'>
             You can find your CRM key in your IndiaMART seller dashboard under CRM settings.
+          </small>
+        </FormGroup>
+
+        <FormGroup className='mb-3'>
+          <Label for='indiamartFetchLeadsSince' className='fw-medium'>
+            Fetch Leads Since
+          </Label>
+          <Input
+            type='date'
+            id='indiamartFetchLeadsSince'
+            value={fetchLeadsSince}
+            onChange={(e) => setFetchLeadsSince(e.target.value)}
+            min={minDate}
+            max={today}
+            style={{ fontSize: '0.85rem' }}
+          />
+          <small className='text-muted'>
+            Select a date within the last 365 days to fetch leads from.
           </small>
         </FormGroup>
       </ModalBody>

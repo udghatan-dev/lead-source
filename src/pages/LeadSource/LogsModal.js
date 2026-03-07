@@ -166,7 +166,7 @@ const LogsModal = ({ isOpen, toggle, connection }) => {
                       >
                         {log.leadgenId || '-'}
                       </td>
-                      <td className='text-muted' style={{ fontSize: '0.78rem' }}>
+                      <td className='text-muted truncate-3-lines' style={{ fontSize: '0.78rem' }}>
                         {(log?.lead?.fieldData && JSON.stringify(log.lead.fieldData)) || '-'}
                       </td>
                       <td className='text-muted' style={{ whiteSpace: 'nowrap', fontSize: '0.78rem' }}>

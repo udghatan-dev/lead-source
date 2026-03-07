@@ -9,3 +9,11 @@
   min-height: 400px;
   margin-top: auto;
 }
+
+.truncate-3-lines {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;   /* The number of lines to show */
+  overflow: hidden;        /* Required to hide the extra text */
+  line-clamp: 3;
+}

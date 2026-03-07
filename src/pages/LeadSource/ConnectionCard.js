@@ -309,7 +309,12 @@ const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapp
                 style={{ color: '#1e293b', fontWeight: '600', fontSize: '0.95rem' }}
               >
                 {title}
-              </h6>
+              </h6>              
+              {connection?.configuration?.lastApiCallAt && (connection.provider === 'indiamart' || connection.source === 'indiamart') && (
+                <span className='d-block text-muted mt-1' style={{ fontSize: '0.7rem' }}>
+                  Last Sync: {new Date(connection.configuration.lastApiCallAt).toLocaleString()}
+                </span>
+              )}
               <span
                 className='badge'
                 style={{
