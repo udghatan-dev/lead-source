@@ -17,6 +17,7 @@ export const INDIAMART_CONNECT_UPDATE = '/api/auth/indiamart/connection';
 export const INDIAMART_CONNECTION = '/api/auth/indiamart/connection';
 export const INDIAMART_DELETE = '/api/auth/indiamart';
 export const INDIAMART_PULL_LEADS = '/api/auth/indiamart/pull-leads?secret=4abbfe3a-f598-404c-8447-f57639f15a40';
+export const INDIAMART_GET_FIELD_LIST = '/api/auth/indiamart/get-field-list';
 
 export const CRM_FIELDS = 'https://mapi.1automations.com/api/v2/crm/fields';
 export const FIELD_MAPPING = '/api/auth/field-mapping';

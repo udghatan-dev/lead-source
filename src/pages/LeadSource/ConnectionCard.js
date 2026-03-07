@@ -83,7 +83,7 @@ const PROVIDER_CONFIG = {
   // IndiaMART
   indiamart: {
     getTitle: TITLE_RESOLVERS.accountName,
-    actions: ['configure', 'webhooks', 'syncLeads', 'logs', 'delete'],
+    actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
   },
 
   // Webhook

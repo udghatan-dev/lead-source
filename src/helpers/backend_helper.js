@@ -321,6 +321,7 @@ export const updateIndiamartConnection = (id, data) => leadsourceApi.update(`${l
 export const getIndiamartConnection = (id) => leadsourceApi.get(`${lsUrl.INDIAMART_CONNECTION}/${id}`);
 export const deleteIndiamartConnection = (id) => leadsourceApi.delete(`${lsUrl.INDIAMART_DELETE}/${id}/delete-selection`);
 export const pullIndiamartLeads = () => leadsourceApi.get(lsUrl.INDIAMART_PULL_LEADS);
+export const getIndiamartFieldList = () => leadsourceApi.get(lsUrl.INDIAMART_GET_FIELD_LIST);
 
 export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);

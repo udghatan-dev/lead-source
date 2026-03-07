@@ -13,7 +13,70 @@ import { BiLink, BiUnlink } from 'react-icons/bi';
 import { IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineUserAdd } from 'react-icons/hi';
-import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages } from '../../helpers/backend_helper';
+import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages, getIndiamartFieldList } from '../../helpers/backend_helper';
+
+// --- Provider-specific form field fetchers ---
+// Each fetcher returns a Promise that resolves to an array of { key, name/label } objects.
+// Add a new entry here for each new provider (17-20 total).
+const PROVIDER_FIELD_FETCHERS = {
+  // Facebook: fetch pages → find page → fetch forms → find form → questions
+  facebook_leadgen: async (connection) => {
+    const config = connection?.configuration || {};
+    if (!config.pageId) return [];
+    const pagesList = await getFacebookPages();
+    const existing = (pagesList || []).find((p) => p.id === config.pageId);
+    if (!existing) return [];
+    const res = await getFacebookForms({
+      pageId: config.pageId,
+      pageAccessToken: existing.accessToken || existing.access_token || existing.pageAccessToken,
+    });
+    const formList = res?.leadForms || res?.data || res || [];
+    const selectedForm = formList.find((f) => f.id === config.formId);
+    return selectedForm?.questions || [];
+  },
+
+  // IndiaMART: GET call, response is { formFields: { KEY: "label", ... } }
+  indiamart: async () => {
+    const res = await getIndiamartFieldList();
+    const fieldsObj = res?.formFields || res?.data?.formFields || {};
+    if (typeof fieldsObj === 'object' && !Array.isArray(fieldsObj)) {
+      return Object.entries(fieldsObj).map(([key, label]) => ({ key, name: label, label }));
+    }
+    return Array.isArray(fieldsObj) ? fieldsObj : [];
+  },
+
+  // --- Add more providers below as needed ---
+  // google_forms: async (connection) => { ... },
+  // googleForm: async (connection) => { ... },
+  // google_ads: async (connection) => { ... },
+  // googleAds: async (connection) => { ... },
+  // linkedin_leadgen: async (connection) => { ... },
+  // linkedinLeadGen: async (connection) => { ... },
+  // typeform: async (connection) => { ... },
+  // webhook: async (connection) => { ... },
+  // landing_page: async (connection) => { ... },
+  // landingPage: async (connection) => { ... },
+  // zoho_crm: async (connection) => { ... },
+  // zohoCrm: async (connection) => { ... },
+  // hubspot_crm: async (connection) => { ... },
+  // hubspotCrm: async (connection) => { ... },
+  // salesforce: async (connection) => { ... },
+  // trade_india: async (connection) => { ... },
+  // tradeIndia: async (connection) => { ... },
+  // magic_bricks: async (connection) => { ... },
+  // magicBricks: async (connection) => { ... },
+  // zomato: async (connection) => { ... },
+  // phone_contact: async (connection) => { ... },
+  // phoneContact: async (connection) => { ... },
+  // ocr_app: async (connection) => { ... },
+  // ocrApp: async (connection) => { ... },
+};
+
+// Resolve the correct fetcher for a connection
+const getFieldFetcher = (connection) => {
+  const provider = connection?.provider || connection?.source || connection?.key || '';
+  return PROVIDER_FIELD_FETCHERS[provider] || PROVIDER_FIELD_FETCHERS.facebook_leadgen;
+};
 
 const TOP_LEVEL_FIELDS = [
   { slug: 'whatsapp', label: 'WhatsApp' },
@@ -72,39 +135,18 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
       setCrmPage(1);
       fetchCrmFields(1, '');
 
-      // Fetch form fields via POST /api/auth/facebook/forms
-      const config = connection?.configuration || {};
-      if (config.pageId) {
-        setLoadingForms(true);
-        getFacebookPages()
-          .then((pagesList) => {
-            const existing = (pagesList || []).find((p) => p.id === config.pageId);
-            if (existing) {
-              return getFacebookForms({
-                pageId: config.pageId,
-                pageAccessToken: existing.accessToken || existing.access_token || existing.pageAccessToken,
-              });
-            }
-            return null;
-          })
-          .then((res) => {
-            if (res) {
-              const formList = res?.leadForms || res?.data || res || [];
-              const selectedForm = formList.find((f) => f.id === config.formId);
-              const questions = selectedForm?.questions || [];
-              setFormFields(questions);
-            } else {
-              setFormFields([]);
-            }
-          })
-          .catch((err) => {
-            console.error('Failed to fetch form fields:', err);
-            setFormFields([]);
-          })
-          .finally(() => setLoadingForms(false));
-      } else {
-        setFormFields([]);
-      }
+      // Fetch form/source fields using provider-specific fetcher
+      const fetcher = getFieldFetcher(connection);
+      setLoadingForms(true);
+      fetcher(connection)
+        .then((fields) => {
+          setFormFields(Array.isArray(fields) ? fields : []);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch form fields:', err);
+          setFormFields([]);
+        })
+        .finally(() => setLoadingForms(false));
 
       // Fetch existing mappings from API
       setLoadingMappings(true);
@@ -241,6 +283,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
   const mappedCount = Object.keys(mappings).length + TOP_LEVEL_FIELDS.filter((tf) => topLevelMappings[tf.slug]).length;
 
   const isLoading = loadingCrm || loadingMappings || loadingForms;
+  console.log('formFields', formFields);
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered size='md'>
@@ -355,7 +398,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                     }}
                   >
                     <option value=''>-- Select form field --</option>
-                    {formFields.map((ff) => {
+                    {formFields?.map((ff) => {
                       const ffKey = ff.key || ff.id || ff.name;
                       return (
                         <option key={ffKey} value={ffKey}>
@@ -457,7 +500,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                               style={{ fontSize: '0.8rem' }}
                             >
                               <option value=''>-- Not mapped --</option>
-                              {formFields.map((ff) => {
+                              {formFields?.map((ff) => {
                                 const ffKey = ff.key || ff.id || ff.name;
                                 return (
                                   <option key={ffKey} value={ffKey}>
