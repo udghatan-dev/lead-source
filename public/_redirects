@@ -1,3 +1,4 @@
+/leadsource/static/*  /static/:splat  200
 /leadsource/assets/*  /assets/:splat  200
 /leadsource/*         /index.html     200
 /*                    /index.html     200
