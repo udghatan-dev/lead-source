@@ -7,7 +7,9 @@ import {
   Modal,
   ModalHeader,
   ModalBody,
+  ModalFooter,
   Spinner,
+  Alert,
   UncontrolledDropdown,
   DropdownToggle,
   DropdownMenu,
@@ -17,7 +19,7 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, pullIndiamartLeads, pullZohoLeads, updateConnections } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, deleteGenericWebhookConnection, pullIndiamartLeads, pullZohoLeads, updateConnections, connectGenericWebhook } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
@@ -33,7 +35,7 @@ import { SiTypeform } from 'react-icons/si';
 import { CgWebsite } from 'react-icons/cg';
 import { SiGoogleforms } from 'react-icons/si';
 import { FaYoutube } from 'react-icons/fa';
-import { FiExternalLink } from 'react-icons/fi';
+import { FiExternalLink, FiCopy, FiCheck } from 'react-icons/fi';
 import { BsGearWideConnected } from 'react-icons/bs';
 import { ImMobile } from 'react-icons/im';
 import { IoQrCodeOutline } from 'react-icons/io5';
@@ -65,6 +67,8 @@ const sourceIconMap = {
   tradeIndia: <FaHandshake />,
   magicBricks: <BsBuildingsFill />,
   zomato: <MdRestaurant />,
+  generic_webhook: <MdOutlineWebhook />,
+  genericWebhook: <MdOutlineWebhook />,
   // provider keys (returned from API)
   facebook_leadgen: <FaMeta />,
   google_forms: <SiGoogleforms />,
@@ -102,6 +106,15 @@ const LeadSources = (props) => {
   const [logsOpen, setLogsOpen] = useState(false);
   const [mappingOpen, setMappingOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
+
+  // Generic Webhook creation modal state
+  const [webhookModalOpen, setWebhookModalOpen] = useState(false);
+  const [webhookName, setWebhookName] = useState('');
+  const [webhookType, setWebhookType] = useState('');
+  const [webhookCreating, setWebhookCreating] = useState(false);
+  const [webhookResult, setWebhookResult] = useState(null);
+  const [webhookError, setWebhookError] = useState('');
+  const [webhookCopied, setWebhookCopied] = useState(false);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -170,7 +183,7 @@ const LeadSources = (props) => {
       id: 2,
       version: '0.0.1',
       name: 'Webhook',
-      key: 'webhook',
+      key: 'webhooks',
       icon: <MdOutlineWebhook />,
       description: 'Receive leads via custom webhook',
     },
@@ -333,6 +346,8 @@ const LeadSources = (props) => {
       await deleteIndiamartConnection(id);
     } else if (provider === 'zoho' || provider === 'zoho_crm' || provider === 'zohoCrm') {
       await deleteZohoConnection(id);
+    } else if (provider === 'generic_webhook' || provider === 'genericWebhook' || provider === 'webhook') {
+      await deleteGenericWebhookConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -356,41 +371,87 @@ const LeadSources = (props) => {
   };
 
   async function handleCreateNewConnection(source) {
-    if (source.key === 'facebookLeadAds') {
-      const token = await getSessionToken({leadSourceId: 'facebook_leadgen'});
-      setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token?.session}`);
-      setShowModal(true);
-    } else if (source.key === 'zohoCrm') {
-      const token = await getSessionToken({leadSourceId: 'zoho_crm'});
-      const zohoUrl = `https://oauth.automationsbuilder.com/zoho-session?token=${token?.session}`;
-      const width = 600;
-      const height = 700;
-      const left = window.screenX + (window.outerWidth - width) / 2;
-      const top = window.screenY + (window.outerHeight - height) / 2;
-      const popup = window.open(zohoUrl, 'zoho_oauth', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`);
-      if (popup) {
-        const pollTimer = setInterval(() => {
-          try {
-            if (popup.closed) {
-              clearInterval(pollTimer);
-              fetchConnections(currentPage);
-              return;
-            }
-            if (popup.location.href && popup.location.href.includes('zoho=success')) {
-              clearInterval(pollTimer);
-              popup.close();
-              fetchConnections(currentPage);
-            }
-          } catch (e) {
-            // Cross-origin — ignore until redirect back to same origin or popup closes
-          }
-        }, 500);
+    switch (source.key) {
+      case 'facebookLeadAds': {
+        const token = await getSessionToken({leadSourceId: 'facebook_leadgen'});
+        setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token?.session}`);
+        setShowModal(true);
+        break;
       }
-    } else {
-      const { icon, ...sourceData } = source;
-      history.push('/settings/' + source.key, { source: sourceData });
+      case 'zohoCrm': {
+        const token = await getSessionToken({leadSourceId: 'zoho_crm'});
+        const zohoUrl = `https://oauth.automationsbuilder.com/zoho-session?token=${token?.session}`;
+        const width = 600;
+        const height = 700;
+        const left = window.screenX + (window.outerWidth - width) / 2;
+        const top = window.screenY + (window.outerHeight - height) / 2;
+        const popup = window.open(zohoUrl, 'zoho_oauth', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`);
+        if (popup) {
+          const pollTimer = setInterval(() => {
+            try {
+              if (popup.closed) {
+                clearInterval(pollTimer);
+                fetchConnections(currentPage);
+                return;
+              }
+              if (popup.location.href && popup.location.href.includes('zoho=success')) {
+                clearInterval(pollTimer);
+                popup.close();
+                fetchConnections(currentPage);
+              }
+            } catch (e) {
+              // Cross-origin — ignore until redirect back to same origin or popup closes
+            }
+          }, 500);
+        }
+        break;
+      }
+      case 'webhooks': {
+        setWebhookName('');
+        setWebhookType('');
+        setWebhookResult(null);
+        setWebhookError('');
+        setWebhookCopied(false);
+        setWebhookModalOpen(true);
+        break;
+      }
+      default: {
+        const { icon, ...sourceData } = source;
+        history.push('/settings/' + source.key, { source: sourceData });
+        break;
+      }
     }
   }
+
+  const handleCreateWebhook = async () => {
+    if (!webhookName.trim()) {
+      setWebhookError('Please enter a connection name.');
+      return;
+    }
+    setWebhookCreating(true);
+    setWebhookError('');
+    try {
+      const res = await connectGenericWebhook({
+        type: webhookType.trim() || 'generic',
+        name: webhookName.trim(),
+      });
+      setWebhookResult(res.data || res);
+      fetchConnections(currentPage);
+    } catch (err) {
+      setWebhookError(err?.msg || err?.response?.data?.msg || 'Failed to create webhook connection.');
+    } finally {
+      setWebhookCreating(false);
+    }
+  };
+
+  const handleCopyWebhookUrl = () => {
+    const url = webhookResult?.webhookUrl;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      setWebhookCopied(true);
+      setTimeout(() => setWebhookCopied(false), 2000);
+    });
+  };
 
   return (
     <React.Fragment>
@@ -678,6 +739,133 @@ const LeadSources = (props) => {
             connection={selectedConnection}
             onConfirm={handleDeleteConfirm}
           />
+
+          {/* Generic Webhook Creation Modal */}
+          <Modal isOpen={webhookModalOpen} toggle={() => { setWebhookModalOpen(false); setWebhookResult(null); }} size='md' centered>
+            <ModalHeader toggle={() => { setWebhookModalOpen(false); setWebhookResult(null); }}>
+              <div className='d-flex align-items-center gap-2'>
+                <MdOutlineWebhook style={{ color: '#6366f1' }} />
+                <span>Create Webhook Connection</span>
+              </div>
+            </ModalHeader>
+            <ModalBody>
+              {webhookError && (
+                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setWebhookError('')}>
+                  {webhookError}
+                </Alert>
+              )}
+
+              {webhookResult ? (
+                <>
+                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
+                    Webhook connection created successfully!
+                  </Alert>
+                  <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
+                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
+                      Your Inbound Webhook URL
+                    </div>
+                    <div className='d-flex align-items-center gap-2'>
+                      <code
+                        className='flex-grow-1 p-2 rounded'
+                        style={{
+                          fontSize: '0.75rem',
+                          backgroundColor: '#fff',
+                          border: '1px solid #e2e8f0',
+                          wordBreak: 'break-all',
+                          display: 'block',
+                        }}
+                      >
+                        {webhookResult.webhookUrl}
+                      </code>
+                      <button
+                        className='btn btn-sm btn-outline-primary d-flex align-items-center'
+                        onClick={handleCopyWebhookUrl}
+                        title='Copy URL'
+                        style={{ minWidth: '36px' }}
+                      >
+                        {webhookCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                      </button>
+                    </div>
+                    <p className='mb-0 mt-2' style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                      Send a POST request with JSON lead data to this URL to ingest leads automatically.
+                    </p>
+                  </div>
+                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
+                      Sample Request
+                    </div>
+                    <pre
+                      style={{
+                        fontSize: '0.73rem',
+                        backgroundColor: '#1e293b',
+                        color: '#e2e8f0',
+                        padding: '10px',
+                        borderRadius: '6px',
+                        margin: 0,
+                        whiteSpace: 'pre-wrap',
+                      }}
+                    >
+{`POST ${webhookResult.webhookUrl}
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "555-1234"
+}`}
+                    </pre>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className='mb-3'>
+                    <label className='form-label fw-medium'>Connection Name <span className='text-danger'>*</span></label>
+                    <input
+                      type='text'
+                      className='form-control'
+                      placeholder='e.g. My Google Sheet Webhook'
+                      value={webhookName}
+                      onChange={(e) => setWebhookName(e.target.value)}
+                    />
+                  </div>
+                  <div className='mb-3'>
+                    <label className='form-label fw-medium'>Type <span className='text-muted fw-normal'>(optional)</span></label>
+                    <input
+                      type='text'
+                      className='form-control'
+                      placeholder='e.g. googlesheet, zapier, custom'
+                      value={webhookType}
+                      onChange={(e) => setWebhookType(e.target.value)}
+                    />
+                    <small className='text-muted'>
+                      A label to identify the source type. Leave blank for "generic".
+                    </small>
+                  </div>
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              {webhookResult ? (
+                <button className='btn btn-sm btn-primary' onClick={() => { setWebhookModalOpen(false); setWebhookResult(null); }}>
+                  Done
+                </button>
+              ) : (
+                <>
+                  <button className='btn btn-sm btn-soft-danger' onClick={() => setWebhookModalOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
+                    onClick={handleCreateWebhook}
+                    disabled={webhookCreating || !webhookName.trim()}
+                  >
+                    {webhookCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
+                    <span>{webhookCreating ? 'Creating...' : 'Create Webhook'}</span>
+                  </button>
+                </>
+              )}
+            </ModalFooter>
+          </Modal>
 
           {/* Facebook Lead Ads Modal */}
           <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='md' centered>

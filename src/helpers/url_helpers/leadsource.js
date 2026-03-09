@@ -27,6 +27,12 @@ export const ZOHO_GET_FIELD_LIST = '/api/auth/zoho/get-field-list';
 export const ZOHO_REGIONS = '/api/auth/zoho/regions';
 export const ZOHO_PULL_LEADS = '/api/auth/zoho/pull-leads?secret=3d7624da-131c-4406-87c0-0b70a907b598';
 
+// Generic Webhook APIs
+export const GENERIC_WEBHOOK_CONNECT = '/api/auth/generic_webhook/connect';
+export const GENERIC_WEBHOOK_CONNECTION = '/api/auth/generic_webhook/connection';
+export const GENERIC_WEBHOOK_DELETE = '/api/auth/generic_webhook';
+export const GENERIC_WEBHOOK_GET_FIELD_LIST = '/api/auth/generic_webhook/get-field-list';
+
 export const CRM_FIELDS = 'https://mapi.1automations.com/api/v2/crm/fields';
 export const FIELD_MAPPING = '/api/auth/field-mapping';
 export const FIELD_MAPPING_UPSERT = '/api/auth/field-mapping/upsert';

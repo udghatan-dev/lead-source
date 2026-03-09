@@ -66,7 +66,8 @@ const TITLE_RESOLVERS = {
     const form = c?.configuration?.formName || c.source;
     return `${page} - ${form}`;
   },
-  zohoAccount: (c) => `${c?.configuration?.accountName} (${c?.configuration?.zohoUserName})`,
+  genericWebhook: (c) => `${c?.configuration?.name} (${c?.configuration?.webhookType})`,
+  zohoAccount: (c) => c?.configuration?.accountName,
   accountName: (c) => c?.configuration?.accountName || c.name || c.source,
   connectionName: (c) => c?.configuration?.connectionName || c.name || c.source,
   defaultTitle: (c) => c.name || c.source,
@@ -90,14 +91,20 @@ const PROVIDER_CONFIG = {
   //Zoho
   zoho: {
     getTitle: TITLE_RESOLVERS.zohoAccount,
-    getSubTitle: (c) => c?.configuration?.zohoUserEmail,
+    getSubTitle: (c) => `${c?.configuration?.zohoUserName} ${c?.configuration?.zohoUserEmail}`,
     actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
   },
 
   // Webhook
   webhook: {
-    getTitle: TITLE_RESOLVERS.defaultTitle,
-    actions: ['configure', 'webhooks', 'logs', 'delete'],
+    getTitle: TITLE_RESOLVERS.connectionName,
+    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
+  },
+
+  // Generic Webhook
+  generic_webhook: {
+    getTitle: TITLE_RESOLVERS.genericWebhook,
+    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
 
   // Google Forms

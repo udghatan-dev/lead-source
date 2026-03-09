@@ -158,6 +158,53 @@ const SOURCE_DOCS = {
       'Real-time webhook support',
     ],
   },
+  webhooks: {
+    title: 'Custom Webhook',
+    description: 'Create a custom inbound webhook URL to receive leads from any external source — Google Sheets, Zapier, custom apps, or any system that can send HTTP POST requests.',
+    videoUrl: null,
+    steps: [
+      {
+        title: 'Create a Webhook Connection',
+        description: 'Find the Webhook card in Lead Sources and click "Create Connection". Enter a name for your connection and optionally specify a type (e.g. googlesheet, zapier).',
+        image: '/leadsource/assets/leadsource/webhook_connect.png',
+      },
+      {
+        title: 'Copy Your Webhook URL',
+        description: 'After creation, you\'ll receive a unique inbound webhook URL. Copy this URL — you\'ll use it to send lead data from your external source.',
+        image: '/leadsource/assets/leadsource/webhook_create.png',
+        tip: 'Keep your webhook URL private. Anyone with the URL can send leads to your account.',
+      },
+      {
+        title: 'Send Leads via POST Request',
+        description: 'Send a POST request with JSON body containing lead data (name, email, phone, etc.) to your webhook URL. The system will automatically save the lead.',
+        image: '/leadsource/assets/leadsource/webhook_configure.png',
+        tip: 'Set Content-Type header to application/json when sending requests.',
+      },
+      {
+        title: 'Set Up Field Mapping',
+        description: 'Open Field Mapping to map the incoming webhook fields to your CRM fields. This ensures each lead field is stored correctly in your CRM.',
+        image: '/leadsource/assets/leadsource/webhook_field_mapping.png',
+      },
+      {
+        title: 'Add Outbound Webhooks',
+        description: 'Optionally configure outbound webhooks to forward incoming leads to other systems in real-time. Navigate to the Webhooks section on your connection card.',
+        image: '/leadsource/assets/leadsource/webhook_webhooks.png',
+      },
+      {
+        title: 'View Logs',
+        description: 'Use the Logs section to monitor all received leads. Each log entry shows the status, payload data, and timestamp for debugging.',
+        image: '/leadsource/assets/leadsource/webhook_logs.png',
+      },
+    ],
+    features: [
+      'Unique inbound webhook URL per connection',
+      'Accept leads from any HTTP POST source',
+      'Auto-save leads and create CRM contacts',
+      'Forward to outbound webhooks in real-time',
+      'Map incoming fields to CRM fields',
+      'Detailed logs for monitoring and debugging',
+    ],
+  },
 };
 
 /**

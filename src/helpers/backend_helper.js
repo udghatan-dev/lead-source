@@ -330,6 +330,12 @@ export const getZohoFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.ZOH
 export const getZohoRegions = () => leadsourceApi.get(lsUrl.ZOHO_REGIONS);
 export const pullZohoLeads = () => leadsourceApi.get(lsUrl.ZOHO_PULL_LEADS);
 
+// Generic Webhook
+export const connectGenericWebhook = (data) => leadsourceApi.create(lsUrl.GENERIC_WEBHOOK_CONNECT, data);
+export const getGenericWebhookConnection = (id) => leadsourceApi.get(`${lsUrl.GENERIC_WEBHOOK_CONNECTION}/${id}`);
+export const deleteGenericWebhookConnection = (id) => leadsourceApi.delete(`${lsUrl.GENERIC_WEBHOOK_DELETE}/${id}/delete-connection`);
+export const getGenericWebhookFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.GENERIC_WEBHOOK_GET_FIELD_LIST}?connectionId=${connectionId}`);
+
 export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
 export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);

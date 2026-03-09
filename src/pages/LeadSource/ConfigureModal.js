@@ -4,6 +4,7 @@ import { BsGearWideConnected } from 'react-icons/bs';
 import FacebookConfigForm from './ConfigForms/FacebookConfigForm';
 import IndiamartConfigForm from './ConfigForms/IndiamartConfigForm';
 import ZohoConfigForm from './ConfigForms/ZohoConfigForm';
+import GenericWebhookConfigForm from './ConfigForms/GenericWebhookConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -14,6 +15,9 @@ const PROVIDER_FORM_MAP = {
   zoho: ZohoConfigForm,
   zoho_crm: ZohoConfigForm,
   zohoCrm: ZohoConfigForm,
+  generic_webhook: GenericWebhookConfigForm,
+  genericWebhook: GenericWebhookConfigForm,
+  webhook: GenericWebhookConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {

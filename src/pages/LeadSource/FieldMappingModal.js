@@ -13,7 +13,7 @@ import { BiLink, BiUnlink } from 'react-icons/bi';
 import { IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineUserAdd } from 'react-icons/hi';
-import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages, getIndiamartFieldList, getZohoFieldList } from '../../helpers/backend_helper';
+import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages, getIndiamartFieldList, getZohoFieldList, getGenericWebhookFieldList } from '../../helpers/backend_helper';
 
 // --- Provider-specific form field fetchers ---
 // Each fetcher returns a Promise that resolves to an array of { key, name/label } objects.
@@ -54,6 +54,24 @@ const PROVIDER_FIELD_FETCHERS = {
     }
     return Array.isArray(fieldsObj) ? fieldsObj : [];
   },
+  // Generic Webhook: GET call, response is { formFields: { KEY: "label", ... } }
+  generic_webhook: async (connection) => {
+    const res = await getGenericWebhookFieldList(connection._id || connection.id);
+    const fieldsObj = res?.formFields || res?.data?.formFields || {};
+    if (typeof fieldsObj === 'object' && !Array.isArray(fieldsObj)) {
+      return Object.entries(fieldsObj).map(([key, label]) => ({ key, name: label, label }));
+    }
+    return Array.isArray(fieldsObj) ? fieldsObj : [];
+  },
+  webhook: async (connection) => {
+    const res = await getGenericWebhookFieldList(connection._id || connection.id);
+    const fieldsObj = res?.formFields || res?.data?.formFields || {};
+    if (typeof fieldsObj === 'object' && !Array.isArray(fieldsObj)) {
+      return Object.entries(fieldsObj).map(([key, label]) => ({ key, name: label, label }));
+    }
+    return Array.isArray(fieldsObj) ? fieldsObj : [];
+  },
+
   // --- Add more providers below as needed ---
   // google_forms: async (connection) => { ... },
   // googleForm: async (connection) => { ... },
@@ -62,7 +80,6 @@ const PROVIDER_FIELD_FETCHERS = {
   // linkedin_leadgen: async (connection) => { ... },
   // linkedinLeadGen: async (connection) => { ... },
   // typeform: async (connection) => { ... },
-  // webhook: async (connection) => { ... },
   // landing_page: async (connection) => { ... },
   // landingPage: async (connection) => { ... },
   // zohoCrm: async (connection) => { ... },
