@@ -113,34 +113,40 @@ const SOURCE_DOCS = {
     steps: [
       {
         title: 'Click "Create Connection"',
-        description: 'Find Zoho CRM in Lead Sources and click Create Connection. A popup window will open for Zoho authentication.',
+        description: 'Find the Zoho CRM card in Lead Sources and click the "Create Connection" button to begin the setup process.',
         image: '/leadsource/assets/leadsource/zoho_connect.png',
       },
       {
-        title: 'Authorize with Zoho',
-        description: 'Sign in to your Zoho account and authorize the application. Select your organization and grant the required permissions.',
+        title: 'Select Region & Connect',
+        description: 'Choose your Data Center Region (e.g. India, US, EU), enter a friendly Account Name, and click "Connect with Zoho CRM". A popup window will open for Zoho authentication.',
         image: '/leadsource/assets/leadsource/zoho_connect_with.png',
-        tip: 'The popup will close automatically after successful authorization.',
+        tip: 'Select the region where your Zoho account is hosted. The popup will close automatically after successful authorization.',
       },
       {
-        title: 'Verify Connection',
-        description: 'Once connected, your Zoho account details (name, email, region) will appear on the connection card. Click Configure to verify.',
+        title: 'Authorize the Application',
+        description: 'In the Zoho popup, review the permissions requested (manage leads data, retrieve user data, CRUD operations on modules). Check the consent checkbox and click "Accept" to authorize.',
         image: '/leadsource/assets/leadsource/zoho_authorized.png',
+        tip: 'Make sure to check "I allow COM.BOT to access the above data from my Zoho account" before clicking Accept.',
       },
       {
         title: 'Set Up Field Mapping',
-        description: 'Map Zoho CRM lead fields to your local CRM fields. This controls how data flows from Zoho into your system.',
+        description: 'Open Field Mapping to map your CRM fields to Zoho form fields. Use the dropdown to select the matching Zoho field for each CRM field. Toggle "Auto-create Contact" to automatically create a CRM contact when a new lead arrives. Click "Save Mappings" when done.',
         image: '/leadsource/assets/leadsource/zoho_fieldmapping.png',
       },
       {
         title: 'Sync Leads',
-        description: 'Use the Sync Leads button to pull leads from Zoho on demand, or let the automated schedule handle it.',
+        description: 'Once connected, your Zoho account details (name, email) will appear on the connection card. Click the Sync Leads button to manually pull leads from Zoho on demand, or let the automated schedule handle it.',
         image: '/leadsource/assets/leadsource/zoho_sync.png',
       },
       {
-        title: 'Add Webhook & View Logs',
-        description: 'Set up webhooks for real-time lead notifications. Monitor all activity through the Logs section.',
-        image: ['/leadsource/assets/leadsource/zoho_webhooks.png', '/leadsource/assets/leadsource/zoho_logs.png'],
+        title: 'Add Webhooks',
+        description: 'Navigate to Webhooks to add webhook URLs that receive real-time notifications when new leads arrive. Enter your endpoint URL and click "+ Add". You can add multiple webhooks and manage them with edit or delete options.',
+        image: '/leadsource/assets/leadsource/zoho_webhooks.png',
+      },
+      {
+        title: 'View Logs',
+        description: 'Use the Logs section to monitor all imported leads. Each log entry shows the source, status, Leadgen ID, full payload data, and the sync date. This helps you verify leads are syncing correctly and debug any issues.',
+        image: '/leadsource/assets/leadsource/zoho_logs.png',
       },
     ],
     features: [
