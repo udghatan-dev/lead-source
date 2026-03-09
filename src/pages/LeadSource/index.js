@@ -17,7 +17,7 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections, deleteConnection, deleteIndiamartConnection, pullIndiamartLeads, updateConnections } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, pullIndiamartLeads, pullZohoLeads, updateConnections } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
@@ -73,6 +73,7 @@ const sourceIconMap = {
   landing_page: <CgWebsite />,
   phone_contact: <ImMobile />,
   ocr_app: <IoQrCodeOutline />,
+  zoho: <SiZoho />,
   zoho_crm: <SiZoho />,
   hubspot_crm: <FaHubspot />,
   indiamart: <FaIndustry />,
@@ -272,21 +273,13 @@ const LeadSources = (props) => {
     {
       id: 15,
       version: '0.0.1',
-      name: 'Trade India',
-      key: 'tradeIndia',
-      icon: <FaHandshake />,
-      description: 'Import leads from TradeIndia platform',
-    },
-    {
-      id: 16,
-      version: '0.0.1',
       name: 'Magic Bricks',
       key: 'magicBricks',
       icon: <BsBuildingsFill />,
       description: 'Capture real estate leads from MagicBricks',
     },
     {
-      id: 17,
+      id: 16,
       version: '0.0.1',
       name: 'Zomato',
       key: 'zomato',
@@ -336,8 +329,10 @@ const LeadSources = (props) => {
 
   const handleDeleteConfirm = async (id) => {
     const provider = selectedConnection?.provider || selectedConnection?.source;
-    if (provider === 'india_mart' || provider === 'indiaMart') {
+    if (provider === 'india_mart' || provider === 'indiaMart' || provider === 'indiamart') {
       await deleteIndiamartConnection(id);
+    } else if (provider === 'zoho' || provider === 'zoho_crm' || provider === 'zohoCrm') {
+      await deleteZohoConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -347,10 +342,13 @@ const LeadSources = (props) => {
   };
 
   const handleSyncLeads = async (connection) => {
-    const secret = connection?.configuration?.crmKey;
-    if (!secret) return;
+    const provider = connection?.provider || connection?.source;
     try {
-      await pullIndiamartLeads(secret);
+      if (provider === 'zoho') {
+        await pullZohoLeads();
+      } else {
+        await pullIndiamartLeads();
+      }
       fetchConnections(currentPage);
     } catch (err) {
       console.error('Failed to sync leads:', err);
@@ -362,6 +360,32 @@ const LeadSources = (props) => {
       const token = await getSessionToken({leadSourceId: 'facebook_leadgen'});
       setModalUrl(`https://oauth.automationsbuilder.com/lead-session?token=${token?.session}`);
       setShowModal(true);
+    } else if (source.key === 'zohoCrm') {
+      const token = await getSessionToken({leadSourceId: 'zoho_crm'});
+      const zohoUrl = `https://oauth.automationsbuilder.com/zoho-session?token=${token?.session}`;
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+      const popup = window.open(zohoUrl, 'zoho_oauth', `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`);
+      if (popup) {
+        const pollTimer = setInterval(() => {
+          try {
+            if (popup.closed) {
+              clearInterval(pollTimer);
+              fetchConnections(currentPage);
+              return;
+            }
+            if (popup.location.href && popup.location.href.includes('zoho=success')) {
+              clearInterval(pollTimer);
+              popup.close();
+              fetchConnections(currentPage);
+            }
+          } catch (e) {
+            // Cross-origin — ignore until redirect back to same origin or popup closes
+          }
+        }, 500);
+      }
     } else {
       const { icon, ...sourceData } = source;
       history.push('/settings/' + source.key, { source: sourceData });

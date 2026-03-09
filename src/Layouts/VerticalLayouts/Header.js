@@ -245,7 +245,7 @@ const Header = (props) => {
                   Credits: {isPdfCreditFetched ? userCredits : '...'}
                 </div>
               </div> */}
-              <div className='d-flex align-items-center px-3 gap-2'>
+              {/* <div className='d-flex align-items-center px-3 gap-2'>
                 <div className='badge bg-soft-success text-success fs-13 px-3 py-2'>
                   <i className='mdi mdi-wallet me-1'></i>
                   Credits: {isPdfCreditFetched ? userCredits : '...'}
@@ -258,7 +258,7 @@ const Header = (props) => {
                   <i className='mdi mdi-plus me-1'></i>
                   Add Credits
                 </button>
-              </div>
+              </div> */}
               {/* <SearchOption /> */}
             </div>
 

@@ -66,7 +66,7 @@ const WebhookPage = () => {
       fetchWebhooks();
     } catch (err) {
       console.error('Failed to create webhook:', err);
-      setError('Failed to create webhook');
+      setError(err?.response?.data?.msg);
     } finally {
       setSaving(false);
     }

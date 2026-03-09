@@ -66,6 +66,7 @@ const TITLE_RESOLVERS = {
     const form = c?.configuration?.formName || c.source;
     return `${page} - ${form}`;
   },
+  zohoAccount: (c) => `${c?.configuration?.accountName} (${c?.configuration?.zohoUserName})`,
   accountName: (c) => c?.configuration?.accountName || c.name || c.source,
   connectionName: (c) => c?.configuration?.connectionName || c.name || c.source,
   defaultTitle: (c) => c.name || c.source,
@@ -83,6 +84,13 @@ const PROVIDER_CONFIG = {
   // IndiaMART
   indiamart: {
     getTitle: TITLE_RESOLVERS.accountName,
+    actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
+  },
+
+  //Zoho
+  zoho: {
+    getTitle: TITLE_RESOLVERS.zohoAccount,
+    getSubTitle: (c) => c?.configuration?.zohoUserEmail,
     actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
   },
 
@@ -162,14 +170,9 @@ const PROVIDER_CONFIG = {
     actions: ['configure', 'logs', 'delete'],
   },
 
-  // CRM Providers
-  zoho_crm: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
-  },
   zohoCrm: {
     getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
+    actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
   },
   hubspot_crm: {
     getTitle: TITLE_RESOLVERS.connectionName,
@@ -256,6 +259,7 @@ const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapp
   const history = useHistory();
   const config = getProviderConfig(connection);
   const title = config.getTitle(connection);
+  const subTitle = config.getSubTitle?.(connection);
   const connectionId = connection._id || connection.id;
 
   const actionHandlers = {
@@ -309,8 +313,13 @@ const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapp
                 style={{ color: '#1e293b', fontWeight: '600', fontSize: '0.95rem' }}
               >
                 {title}
-              </h6>              
-              {connection?.configuration?.lastApiCallAt && (connection.provider === 'indiamart' || connection.source === 'indiamart') && (
+              </h6> 
+              {subTitle && (
+                <span className='d-block text-muted mt-1' style={{ fontSize: '0.7rem' }}>
+                  {subTitle}
+                </span>
+              )}             
+              {connection?.configuration?.lastApiCallAt && (connection.provider === 'indiamart' || connection.source === 'indiamart' || connection.provider === 'zoho' || connection.provider === 'zoho_crm' || connection.source === 'zoho_crm') && (
                 <span className='d-block text-muted mt-1' style={{ fontSize: '0.7rem' }}>
                   Last Sync: {new Date(connection.configuration.lastApiCallAt).toLocaleString()}
                 </span>

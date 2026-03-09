@@ -3,6 +3,7 @@ import { Modal, ModalHeader } from 'reactstrap';
 import { BsGearWideConnected } from 'react-icons/bs';
 import FacebookConfigForm from './ConfigForms/FacebookConfigForm';
 import IndiamartConfigForm from './ConfigForms/IndiamartConfigForm';
+import ZohoConfigForm from './ConfigForms/ZohoConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -10,6 +11,9 @@ const getProvider = (connection) =>
 // Map provider keys to their config form component
 const PROVIDER_FORM_MAP = {
   indiamart: IndiamartConfigForm,
+  zoho: ZohoConfigForm,
+  zoho_crm: ZohoConfigForm,
+  zohoCrm: ZohoConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {

@@ -323,6 +323,13 @@ export const deleteIndiamartConnection = (id) => leadsourceApi.delete(`${lsUrl.I
 export const pullIndiamartLeads = () => leadsourceApi.get(lsUrl.INDIAMART_PULL_LEADS);
 export const getIndiamartFieldList = () => leadsourceApi.get(lsUrl.INDIAMART_GET_FIELD_LIST);
 
+// Zoho CRM
+export const getZohoConnection = (id) => leadsourceApi.get(`${lsUrl.ZOHO_CONNECTION}/${id}`);
+export const deleteZohoConnection = (id) => leadsourceApi.delete(`${lsUrl.ZOHO_DELETE}/${id}/delete-selection`);
+export const getZohoFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.ZOHO_GET_FIELD_LIST}?connectionId=${connectionId}`);
+export const getZohoRegions = () => leadsourceApi.get(lsUrl.ZOHO_REGIONS);
+export const pullZohoLeads = () => leadsourceApi.get(lsUrl.ZOHO_PULL_LEADS);
+
 export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
 export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);

@@ -13,7 +13,7 @@ import { BiLink, BiUnlink } from 'react-icons/bi';
 import { IoMdClose } from 'react-icons/io';
 import { FiSearch } from 'react-icons/fi';
 import { HiOutlineUserAdd } from 'react-icons/hi';
-import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages, getIndiamartFieldList } from '../../helpers/backend_helper';
+import { getCrmFields, getFieldMappings, upsertFieldMappings, getFacebookForms, getFacebookPages, getIndiamartFieldList, getZohoFieldList } from '../../helpers/backend_helper';
 
 // --- Provider-specific form field fetchers ---
 // Each fetcher returns a Promise that resolves to an array of { key, name/label } objects.
@@ -45,6 +45,15 @@ const PROVIDER_FIELD_FETCHERS = {
     return Array.isArray(fieldsObj) ? fieldsObj : [];
   },
 
+  // Zoho CRM: GET call, response is { formFields: { KEY: "label", ... } }
+  zoho: async (connection) => {
+    const res = await getZohoFieldList(connection._id);
+    const fieldsObj = res?.formFields || res?.data?.formFields || {};
+    if (typeof fieldsObj === 'object' && !Array.isArray(fieldsObj)) {
+      return Object.entries(fieldsObj).map(([key, label]) => ({ key, name: label, label }));
+    }
+    return Array.isArray(fieldsObj) ? fieldsObj : [];
+  },
   // --- Add more providers below as needed ---
   // google_forms: async (connection) => { ... },
   // googleForm: async (connection) => { ... },
@@ -56,7 +65,6 @@ const PROVIDER_FIELD_FETCHERS = {
   // webhook: async (connection) => { ... },
   // landing_page: async (connection) => { ... },
   // landingPage: async (connection) => { ... },
-  // zoho_crm: async (connection) => { ... },
   // zohoCrm: async (connection) => { ... },
   // hubspot_crm: async (connection) => { ... },
   // hubspotCrm: async (connection) => { ... },
@@ -283,7 +291,6 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
   const mappedCount = Object.keys(mappings).length + TOP_LEVEL_FIELDS.filter((tf) => topLevelMappings[tf.slug]).length;
 
   const isLoading = loadingCrm || loadingMappings || loadingForms;
-  console.log('formFields', formFields);
 
   return (
     <Modal isOpen={isOpen} toggle={toggle} centered size='md'>
