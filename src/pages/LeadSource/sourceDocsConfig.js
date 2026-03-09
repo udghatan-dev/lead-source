@@ -114,33 +114,33 @@ const SOURCE_DOCS = {
       {
         title: 'Click "Create Connection"',
         description: 'Find Zoho CRM in Lead Sources and click Create Connection. A popup window will open for Zoho authentication.',
-        image: null,
+        image: '/leadsource/assets/leadsource/zoho_connect.png',
       },
       {
         title: 'Authorize with Zoho',
         description: 'Sign in to your Zoho account and authorize the application. Select your organization and grant the required permissions.',
-        image: null,
+        image: '/leadsource/assets/leadsource/zoho_connect_with.png',
         tip: 'The popup will close automatically after successful authorization.',
       },
       {
         title: 'Verify Connection',
         description: 'Once connected, your Zoho account details (name, email, region) will appear on the connection card. Click Configure to verify.',
-        image: null,
+        image: '/leadsource/assets/leadsource/zoho_authorized.png',
       },
       {
         title: 'Set Up Field Mapping',
         description: 'Map Zoho CRM lead fields to your local CRM fields. This controls how data flows from Zoho into your system.',
-        image: null,
+        image: '/leadsource/assets/leadsource/zoho_fieldmapping.png',
       },
       {
         title: 'Sync Leads',
         description: 'Use the Sync Leads button to pull leads from Zoho on demand, or let the automated schedule handle it.',
-        image: null,
+        image: '/leadsource/assets/leadsource/zoho_sync.png',
       },
       {
         title: 'Add Webhook & View Logs',
         description: 'Set up webhooks for real-time lead notifications. Monitor all activity through the Logs section.',
-        image: null,
+        image: ['/leadsource/assets/leadsource/zoho_webhooks.png', '/leadsource/assets/leadsource/zoho_logs.png'],
       },
     ],
     features: [
