@@ -205,21 +205,13 @@ const LeadSources = (props) => {
     {
       id: 3,
       version: '0.0.1',
-      name: 'Form',
-      key: 'form',
-      icon: <SiGoogleforms />,
-      description: 'Custom web form integration',
-    },
-    {
-      id: 4,
-      version: '0.0.1',
       name: 'Google Form',
       key: 'googleForm',
       icon: <SiGoogleforms />,
       description: 'Sync leads from Google Forms',
     },
     {
-      id: 5,
+      id: 4,
       version: '0.0.1',
       name: 'Typeform',
       key: 'typeform',
@@ -227,7 +219,7 @@ const LeadSources = (props) => {
       description: 'Connect with Typeform responses',
     },
     {
-      id: 6,
+      id: 5,
       version: '0.0.1',
       name: 'Google Ads',
       key: 'googleAds',
@@ -235,7 +227,7 @@ const LeadSources = (props) => {
       description: 'Import leads from Google Ads campaigns',
     },
     {
-      id: 7,
+      id: 6,
       version: '0.0.1',
       name: 'LinkedIn Lead Gen',
       key: 'linkedinLeadGen',
@@ -243,7 +235,7 @@ const LeadSources = (props) => {
       description: 'Capture LinkedIn sponsored leads',
     },
     {
-      id: 8,
+      id: 7,
       version: '0.0.1',
       name: 'Landing Page',
       key: 'landingPage',
@@ -251,7 +243,7 @@ const LeadSources = (props) => {
       description: 'Custom landing page forms',
     },
     {
-      id: 9,
+      id: 8,
       version: '0.0.1',
       name: 'Phone Contact',
       key: 'phoneContact',
@@ -259,7 +251,7 @@ const LeadSources = (props) => {
       description: 'Import leads from phone contacts',
     },
     {
-      id: 10,
+      id: 9,
       version: '0.0.1',
       name: 'OCR App',
       key: 'ocrApp',
@@ -267,7 +259,7 @@ const LeadSources = (props) => {
       description: 'Scan and capture leads via OCR',
     },
     {
-      id: 11,
+      id: 10,
       version: '0.0.1',
       name: 'Zoho CRM',
       key: 'zohoCrm',
@@ -275,7 +267,7 @@ const LeadSources = (props) => {
       description: 'Sync leads from Zoho CRM',
     },
     {
-      id: 12,
+      id: 11,
       version: '0.0.1',
       name: 'Hubspot CRM',
       key: 'hubspotCrm',
@@ -283,7 +275,7 @@ const LeadSources = (props) => {
       description: 'Sync leads from Hubspot CRM',
     },
     {
-      id: 13,
+      id: 12,
       version: '0.0.1',
       name: 'Salesforce',
       key: 'salesforce',
@@ -291,7 +283,7 @@ const LeadSources = (props) => {
       description: 'Sync leads from Salesforce',
     },
     {
-      id: 14,
+      id: 13,
       version: '0.0.1',
       name: 'India Mart',
       key: 'indiaMart',
@@ -299,7 +291,7 @@ const LeadSources = (props) => {
       description: 'Capture leads from IndiaMART enquiries',
     },
     {
-      id: 15,
+      id: 14,
       version: '0.0.1',
       name: 'Magic Bricks',
       key: 'magicBricks',
@@ -307,7 +299,7 @@ const LeadSources = (props) => {
       description: 'Capture real estate leads from MagicBricks',
     },
     {
-      id: 16,
+      id: 15,
       version: '0.0.1',
       name: 'Zomato',
       key: 'zomato',

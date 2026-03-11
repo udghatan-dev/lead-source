@@ -213,7 +213,7 @@ const DocumentationPage = () => {
                 {steps[activeStep].note && (
                   <div
                     className='d-flex align-items-start gap-2 mt-4 p-3 rounded'
-                    style={{ backgroundColor: '#f0d4da', border: '1px solid #D2042D' }}
+                    style={{ backgroundColor: '#FFE6E6', border: '1px solid #D2042D' }}
                   >
                     <MdOutlineNoteAlt style={{ color: '#D2042D', fontSize: '1.2rem', flexShrink: 0, marginTop: '2px' }} />
                     <span style={{ fontSize: '0.85rem', color: '#D2042D', lineHeight: '1.5' }}>
