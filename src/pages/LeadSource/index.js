@@ -63,6 +63,7 @@ import { FaHandshake } from 'react-icons/fa';
 import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
 import { getSessionToken } from '../../helpers/backend_helper';
+import Preloader from '../../Components/Loaders/Preloader';
 
 const sourceIconMap = {
   // camelCase keys (used in allSources)
@@ -1277,6 +1278,7 @@ Content-Type: application/json
             </ModalBody>
           </Modal>
         </Container>
+        {loading && <Preloader />}
       </div>
     </React.Fragment>
   );
