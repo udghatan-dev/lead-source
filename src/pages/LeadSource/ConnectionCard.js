@@ -114,8 +114,10 @@ const PROVIDER_CONFIG = {
     getTitle: TITLE_RESOLVERS.googleForm,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
-  form: {
-    getTitle: TITLE_RESOLVERS.pageForm,
+
+  // JotForm
+  jotform: {
+    getTitle: TITLE_RESOLVERS.googleForm,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
 
@@ -124,17 +126,9 @@ const PROVIDER_CONFIG = {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
-  googleAds: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
-  },
 
   // LinkedIn
   linkedin_leadgen: {
-    getTitle: TITLE_RESOLVERS.pageForm,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
-  },
-  linkedinLeadGen: {
     getTitle: TITLE_RESOLVERS.pageForm,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
@@ -151,10 +145,6 @@ const PROVIDER_CONFIG = {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
-  landingPage: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'logs', 'delete'],
-  },
 
   // Phone Contact
   phone_connect: {
@@ -167,23 +157,17 @@ const PROVIDER_CONFIG = {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'logs', 'delete'],
   },
-  ocrApp: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'logs', 'delete'],
-  },
 
   zohoCrm: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
   },
+
   hubspot_crm: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
-  hubspotCrm: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
-  },
+
   salesforce: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
@@ -194,18 +178,17 @@ const PROVIDER_CONFIG = {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
+
   tradeIndia: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
+
   magic_bricks: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
-  magicBricks: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'webhooks', 'logs', 'delete'],
-  },
+
   zomato: {
     getTitle: TITLE_RESOLVERS.connectionName,
     actions: ['configure', 'webhooks', 'logs', 'delete'],

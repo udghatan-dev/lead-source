@@ -345,6 +345,12 @@ export const getPhoneContactUploadUrl = (id) => leadsourceApi.get(`${lsUrl.PHONE
 export const processPhoneContactFile = (id) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_PROCESS_FILE}/${id}`);
 export const uploadPhoneContactJson = (id, data) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_UPLOAD_JSON}/${id}`, data);
 
+// JotForm
+export const connectJotForm = (data) => leadsourceApi.create(lsUrl.JOTFORM_CONNECT, data);
+export const getJotFormConnection = (id) => leadsourceApi.get(`${lsUrl.JOTFORM_CONNECTION}/${id}`);
+export const getJotFormFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.JOTFORM_GET_FIELD_LIST}?connectionId=${connectionId}`);
+export const deleteJotFormConnection = (id) => leadsourceApi.delete(`${lsUrl.JOTFORM_DELETE}/${id}/delete-connection`);
+
 // Google Forms
 export const connectGoogleForms = (data) => leadsourceApi.create(lsUrl.GOOGLE_FORMS_CONNECT, data);
 export const getGoogleFormsConnection = (id) => leadsourceApi.get(`${lsUrl.GOOGLE_FORMS_CONNECTION}/${id}`);

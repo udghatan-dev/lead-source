@@ -319,6 +319,71 @@ const SOURCE_DOCS = {
       'Works with any Google Form',
     ],
   },
+  jotForm: {
+    title: 'JotForm',
+    description: 'Connect JotForm to automatically capture form submissions as leads using JotForm\'s built-in webhook integration.',
+    videoUrl: null,
+    steps: [
+      {
+        title: 'Create a Connection',
+        description: 'Find the JotForm card in Lead Sources and click "Create Connection". Enter a name for your connection (e.g. "Contact Form Leads").',
+        image: ['/leadsource/assets/leadsource/jotform_connect.png', '/leadsource/assets/leadsource/jotform_create.png'],
+      },
+      {
+        title: 'Copy the Webhook URL',
+        description: 'After creation, you will see a unique inbound webhook URL. Click the copy button to copy it to your clipboard.',
+        image: '/leadsource/assets/leadsource/jotform_copy_webhook.png',
+        note: 'Keep your webhook URL private. Anyone with the URL can send data to your account.',
+      },
+      {
+        title: 'Open Your Form in JotForm',
+        description: 'Log in to your JotForm account and open the form you want to connect. Click on the "Edit" option on the particular form.',
+        image: '/leadsource/assets/leadsource/jotform_formlist.png',
+      },
+      {
+        title: 'Go to Settings',
+        description: 'In the Settings panel, click on "Integrations" in the left sidebar to view available integrations and Search for "WebHooks" in the search bar. and select it.',
+        image: '/leadsource/assets/leadsource/jotform_integrations.png',
+      },
+      {
+        title: 'Add Webhook Integration',
+        description: 'Paste the webhook URL you copied earlier into the Webhook URL field. Click "Complete Integration" to save. after that you can see message Integration Ready.',
+        image: ['/leadsource/assets/leadsource/jotform_webhook_integration.png','/leadsource/assets/leadsource/jotform_webhook_success.png'],
+        tip: 'Make sure you paste the full URL including https://.',
+      },
+      {
+        title: 'Send a Test Submission',
+        description: 'Now choose "Publish" Tab like show in image. Open that form in new tab or you can copy link and open in new tab. Then submit a test response in your JotForm form. This verifies the webhook connection is working and allows the system to auto-detect your form fields.',
+        image: '/leadsource/assets/leadsource/jotform_submit_testform.png',
+        note: 'You need to send at least one test submission before field mapping will show available form fields.',
+      },
+      {
+        title: 'Set Up Field Mapping',
+        description: 'Back in Lead Sources, open Field Mapping on your JotForm connection card. Map the JotForm fields to your CRM fields. Toggle "Auto-create Contact" to automatically create CRM contacts for each submission.',
+        image: '/leadsource/assets/leadsource/jotform_fieldmapping.png',
+      },
+      {
+        title: 'Add Webhooks (Optional)',
+        description: 'Navigate to Webhooks on your connection card to add outbound webhook URLs. These will receive real-time notifications when a new JotForm submission is captured as a lead.',
+        image: '/leadsource/assets/leadsource/jotform_webhooks.png',
+      },
+      {
+        title: 'View Logs & Monitor',
+        description: 'Use the Logs section to monitor all captured form submissions. Each log entry shows the source, status, payload data, and timestamp for easy debugging.',
+        image: '/leadsource/assets/leadsource/jotform_logs.png',
+      },
+    ],
+    features: [
+      'Simple webhook integration — no coding required',
+      'Auto-detect form fields from incoming submissions',
+      'Capture form submissions in real-time',
+      'Map JotForm fields to CRM fields',
+      'Auto-create CRM contacts on new submissions',
+      'Forward leads to outbound webhooks',
+      'Detailed submission logs for monitoring',
+      'Works with any JotForm form',
+    ],
+  },
   phoneContact: {
     title: 'Phone Contact',
     description: 'Import contacts from your phone by uploading a VCF/vCard file or syncing directly via JSON from your mobile app.',

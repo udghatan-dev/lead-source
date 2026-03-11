@@ -8,6 +8,7 @@ import GenericWebhookConfigForm from './ConfigForms/GenericWebhookConfigForm';
 import PhoneContactConfigForm from './ConfigForms/PhoneContactConfigForm';
 import TypeformConfigForm from './ConfigForms/TypeformConfigForm';
 import GoogleFormsConfigForm from './ConfigForms/GoogleFormsConfigForm';
+import JotFormConfigForm from './ConfigForms/JotFormConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -25,6 +26,8 @@ const PROVIDER_FORM_MAP = {
   typeform: TypeformConfigForm,
   google_forms: GoogleFormsConfigForm,
   googleForm: GoogleFormsConfigForm,
+  jotform: JotFormConfigForm,
+  jotForm: JotFormConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {

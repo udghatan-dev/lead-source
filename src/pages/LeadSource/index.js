@@ -19,7 +19,7 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, deleteGenericWebhookConnection, deletePhoneContactConnection, deleteTypeformConnection, deleteGoogleFormsConnection, pullIndiamartLeads, pullZohoLeads, updateConnections, connectGenericWebhook, connectPhoneContact, connectGoogleForms, getGoogleFormsAppsScript } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, deleteGenericWebhookConnection, deletePhoneContactConnection, deleteTypeformConnection, deleteGoogleFormsConnection, deleteJotFormConnection, pullIndiamartLeads, pullZohoLeads, updateConnections, connectGenericWebhook, connectPhoneContact, connectGoogleForms, getGoogleFormsAppsScript, connectJotForm } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
@@ -46,6 +46,7 @@ import { FaIndustry } from 'react-icons/fa';
 import { FaHandshake } from 'react-icons/fa';
 import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
+import { RiSurveyLine } from 'react-icons/ri';
 import { getSessionToken } from '../../helpers/backend_helper';
 
 const sourceIconMap = {
@@ -69,6 +70,8 @@ const sourceIconMap = {
   zomato: <MdRestaurant />,
   generic_webhook: <MdOutlineWebhook />,
   genericWebhook: <MdOutlineWebhook />,
+  jotForm: <RiSurveyLine />,
+  jotform: <RiSurveyLine />,
   // provider keys (returned from API)
   facebook_leadgen: <FaMeta />,
   google_forms: <SiGoogleforms />,
@@ -130,6 +133,14 @@ const LeadSources = (props) => {
   const [googleFormsError, setGoogleFormsError] = useState('');
   const [googleFormsCopiedUrl, setGoogleFormsCopiedUrl] = useState(false);
   const [googleFormsCopiedScript, setGoogleFormsCopiedScript] = useState(false);
+
+  // JotForm creation modal state
+  const [jotFormModalOpen, setJotFormModalOpen] = useState(false);
+  const [jotFormName, setJotFormName] = useState('');
+  const [jotFormCreating, setJotFormCreating] = useState(false);
+  const [jotFormResult, setJotFormResult] = useState(null);
+  const [jotFormError, setJotFormError] = useState('');
+  const [jotFormCopied, setJotFormCopied] = useState(false);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -209,6 +220,14 @@ const LeadSources = (props) => {
       key: 'googleForm',
       icon: <SiGoogleforms />,
       description: 'Sync leads from Google Forms',
+    },
+    {
+      id: 16,
+      version: '0.0.1',
+      name: 'JotForm',
+      key: 'jotForm',
+      icon: <RiSurveyLine />,
+      description: 'Capture leads from JotForm submissions',
     },
     {
       id: 4,
@@ -361,6 +380,8 @@ const LeadSources = (props) => {
       await deleteTypeformConnection(id);
     } else if (provider === 'google_forms' || provider === 'googleForm') {
       await deleteGoogleFormsConnection(id);
+    } else if (provider === 'jotform' || provider === 'jotForm') {
+      await deleteJotFormConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -441,6 +462,14 @@ const LeadSources = (props) => {
         setGoogleFormsCopiedUrl(false);
         setGoogleFormsCopiedScript(false);
         setGoogleFormsModalOpen(true);
+        break;
+      }
+      case 'jotForm': {
+        setJotFormName('');
+        setJotFormError('');
+        setJotFormResult(null);
+        setJotFormCopied(false);
+        setJotFormModalOpen(true);
         break;
       }
       case 'typeform': {
@@ -575,6 +604,33 @@ const LeadSources = (props) => {
     navigator.clipboard.writeText(script).then(() => {
       setGoogleFormsCopiedScript(true);
       setTimeout(() => setGoogleFormsCopiedScript(false), 2000);
+    });
+  };
+
+  const handleCreateJotForm = async () => {
+    if (!jotFormName.trim()) {
+      setJotFormError('Please enter a connection name.');
+      return;
+    }
+    setJotFormCreating(true);
+    setJotFormError('');
+    try {
+      const res = await connectJotForm({ name: jotFormName.trim() });
+      setJotFormResult(res.data || res);
+      fetchConnections(currentPage);
+    } catch (err) {
+      setJotFormError(err?.msg || err?.response?.data?.msg || 'Failed to create JotForm connection.');
+    } finally {
+      setJotFormCreating(false);
+    }
+  };
+
+  const handleCopyJotFormUrl = () => {
+    const url = jotFormResult?.webhookUrl;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      setJotFormCopied(true);
+      setTimeout(() => setJotFormCopied(false), 2000);
     });
   };
 
@@ -1174,6 +1230,115 @@ Content-Type: application/json
                   >
                     {googleFormsCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
                     <span>{googleFormsCreating ? 'Creating...' : 'Create Connection'}</span>
+                  </button>
+                </>
+              )}
+            </ModalFooter>
+          </Modal>
+
+          {/* JotForm Creation Modal */}
+          <Modal isOpen={jotFormModalOpen} toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }} size='md' centered>
+            <ModalHeader toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }}>
+              <div className='d-flex align-items-center gap-2'>
+                <RiSurveyLine style={{ color: '#FF6100' }} />
+                <span>Create JotForm Connection</span>
+              </div>
+            </ModalHeader>
+            <ModalBody>
+              {jotFormError && (
+                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setJotFormError('')}>
+                  {jotFormError}
+                </Alert>
+              )}
+
+              {jotFormResult ? (
+                <>
+                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
+                    JotForm connection created successfully!
+                  </Alert>
+                  {jotFormResult.webhookUrl && (
+                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
+                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
+                        Your Inbound Webhook URL
+                      </div>
+                      <div className='d-flex align-items-center gap-2'>
+                        <code
+                          className='flex-grow-1 p-2 rounded'
+                          style={{
+                            fontSize: '0.75rem',
+                            backgroundColor: '#fff',
+                            border: '1px solid #e2e8f0',
+                            wordBreak: 'break-all',
+                            display: 'block',
+                          }}
+                        >
+                          {jotFormResult.webhookUrl}
+                        </code>
+                        <button
+                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
+                          onClick={handleCopyJotFormUrl}
+                          title='Copy URL'
+                          style={{ minWidth: '36px' }}
+                        >
+                          {jotFormCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                        </button>
+                      </div>
+                      <p className='mb-0 mt-2' style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        Add this URL as a webhook in your JotForm form settings.
+                      </p>
+                    </div>
+                  )}
+                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
+                      Next Steps
+                    </div>
+                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      <li className='mb-1'>Open your form in JotForm</li>
+                      <li className='mb-1'>Go to <strong>Settings</strong> &rarr; <strong>Integrations</strong></li>
+                      <li className='mb-1'>Search for <strong>WebHooks</strong> and select it</li>
+                      <li className='mb-1'>Paste the webhook URL above</li>
+                      <li className='mb-1'>Click <strong>Complete Integration</strong></li>
+                      <li>Submit a test response to verify</li>
+                    </ol>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className='mb-3'>
+                    <label className='form-label fw-medium'>Connection Name <span className='text-danger'>*</span></label>
+                    <input
+                      type='text'
+                      className='form-control'
+                      placeholder='e.g. My JotForm Leads'
+                      value={jotFormName}
+                      onChange={(e) => setJotFormName(e.target.value)}
+                    />
+                  </div>
+                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      After creating the connection, you will receive a webhook URL to add in your JotForm form's webhook integration settings.
+                    </p>
+                  </div>
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              {jotFormResult ? (
+                <button className='btn btn-sm btn-primary' onClick={() => { setJotFormModalOpen(false); setJotFormResult(null); }}>
+                  Done
+                </button>
+              ) : (
+                <>
+                  <button className='btn btn-sm btn-soft-danger' onClick={() => setJotFormModalOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
+                    onClick={handleCreateJotForm}
+                    disabled={jotFormCreating || !jotFormName.trim()}
+                  >
+                    {jotFormCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
+                    <span>{jotFormCreating ? 'Creating...' : 'Create Connection'}</span>
                   </button>
                 </>
               )}

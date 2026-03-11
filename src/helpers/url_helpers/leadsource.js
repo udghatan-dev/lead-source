@@ -42,6 +42,12 @@ export const PHONE_CONTACT_UPLOAD_URL = '/api/auth/phone_connect/upload-url';
 export const PHONE_CONTACT_PROCESS_FILE = '/api/auth/phone_connect/process-file';
 export const PHONE_CONTACT_UPLOAD_JSON = '/api/auth/phone_connect/upload-json';
 
+// JotForm APIs
+export const JOTFORM_CONNECT = '/api/auth/jotform/connect';
+export const JOTFORM_CONNECTION = '/api/auth/jotform/connection';
+export const JOTFORM_GET_FIELD_LIST = '/api/auth/jotform/get-field-list';
+export const JOTFORM_DELETE = '/api/auth/jotform';
+
 // Google Forms APIs
 export const GOOGLE_FORMS_CONNECT = '/api/auth/google_forms/connect';
 export const GOOGLE_FORMS_CONNECTION = '/api/auth/google_forms/connection';
