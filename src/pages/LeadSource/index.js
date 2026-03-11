@@ -19,7 +19,7 @@ import {
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
-import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, deleteGenericWebhookConnection, deletePhoneContactConnection, deleteTypeformConnection, pullIndiamartLeads, pullZohoLeads, updateConnections, connectGenericWebhook, connectPhoneContact } from '../../helpers/backend_helper';
+import { listConnections, deleteConnection, deleteIndiamartConnection, deleteZohoConnection, deleteGenericWebhookConnection, deletePhoneContactConnection, deleteTypeformConnection, deleteGoogleFormsConnection, pullIndiamartLeads, pullZohoLeads, updateConnections, connectGenericWebhook, connectPhoneContact, connectGoogleForms } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
 import LogsModal from './LogsModal';
@@ -121,6 +121,15 @@ const LeadSources = (props) => {
   const [phoneName, setPhoneName] = useState('');
   const [phoneCreating, setPhoneCreating] = useState(false);
   const [phoneError, setPhoneError] = useState('');
+
+  // Google Forms creation modal state
+  const [googleFormsModalOpen, setGoogleFormsModalOpen] = useState(false);
+  const [googleFormsName, setGoogleFormsName] = useState('');
+  const [googleFormsCreating, setGoogleFormsCreating] = useState(false);
+  const [googleFormsResult, setGoogleFormsResult] = useState(null);
+  const [googleFormsError, setGoogleFormsError] = useState('');
+  const [googleFormsCopiedUrl, setGoogleFormsCopiedUrl] = useState(false);
+  const [googleFormsCopiedScript, setGoogleFormsCopiedScript] = useState(false);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -358,6 +367,8 @@ const LeadSources = (props) => {
       await deletePhoneContactConnection(id);
     } else if (provider === 'typeform') {
       await deleteTypeformConnection(id);
+    } else if (provider === 'google_forms' || provider === 'googleForm') {
+      await deleteGoogleFormsConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -429,6 +440,15 @@ const LeadSources = (props) => {
         setPhoneName('');
         setPhoneError('');
         setPhoneModalOpen(true);
+        break;
+      }
+      case 'googleForm': {
+        setGoogleFormsName('');
+        setGoogleFormsError('');
+        setGoogleFormsResult(null);
+        setGoogleFormsCopiedUrl(false);
+        setGoogleFormsCopiedScript(false);
+        setGoogleFormsModalOpen(true);
         break;
       }
       case 'typeform': {
@@ -514,6 +534,42 @@ const LeadSources = (props) => {
     } finally {
       setPhoneCreating(false);
     }
+  };
+
+  const handleCreateGoogleForms = async () => {
+    if (!googleFormsName.trim()) {
+      setGoogleFormsError('Please enter a connection name.');
+      return;
+    }
+    setGoogleFormsCreating(true);
+    setGoogleFormsError('');
+    try {
+      const res = await connectGoogleForms({ name: googleFormsName.trim() });
+      setGoogleFormsResult(res.data || res);
+      fetchConnections(currentPage);
+    } catch (err) {
+      setGoogleFormsError(err?.msg || err?.response?.data?.msg || 'Failed to create Google Forms connection.');
+    } finally {
+      setGoogleFormsCreating(false);
+    }
+  };
+
+  const handleCopyGoogleFormsUrl = () => {
+    const url = googleFormsResult?.webhookUrl;
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      setGoogleFormsCopiedUrl(true);
+      setTimeout(() => setGoogleFormsCopiedUrl(false), 2000);
+    });
+  };
+
+  const handleCopyGoogleFormsScript = () => {
+    const script = googleFormsResult?.appsScript;
+    if (!script) return;
+    navigator.clipboard.writeText(script).then(() => {
+      setGoogleFormsCopiedScript(true);
+      setTimeout(() => setGoogleFormsCopiedScript(false), 2000);
+    });
   };
 
   return (
@@ -969,6 +1025,149 @@ Content-Type: application/json
                   >
                     {webhookCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
                     <span>{webhookCreating ? 'Creating...' : 'Create Webhook'}</span>
+                  </button>
+                </>
+              )}
+            </ModalFooter>
+          </Modal>
+
+          {/* Google Forms Creation Modal */}
+          <Modal isOpen={googleFormsModalOpen} toggle={() => { setGoogleFormsModalOpen(false); setGoogleFormsResult(null); }} size='md' centered>
+            <ModalHeader toggle={() => { setGoogleFormsModalOpen(false); setGoogleFormsResult(null); }}>
+              <div className='d-flex align-items-center gap-2'>
+                <SiGoogleforms style={{ color: '#673ab7' }} />
+                <span>Create Google Forms Connection</span>
+              </div>
+            </ModalHeader>
+            <ModalBody>
+              {googleFormsError && (
+                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setGoogleFormsError('')}>
+                  {googleFormsError}
+                </Alert>
+              )}
+
+              {googleFormsResult ? (
+                <>
+                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
+                    Google Forms connection created successfully!
+                  </Alert>
+
+                  {/* Webhook URL */}
+                  {googleFormsResult.webhookUrl && (
+                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
+                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
+                        Your Inbound Webhook URL
+                      </div>
+                      <div className='d-flex align-items-center gap-2'>
+                        <code
+                          className='flex-grow-1 p-2 rounded'
+                          style={{
+                            fontSize: '0.75rem',
+                            backgroundColor: '#fff',
+                            border: '1px solid #e2e8f0',
+                            wordBreak: 'break-all',
+                            display: 'block',
+                          }}
+                        >
+                          {googleFormsResult.webhookUrl}
+                        </code>
+                        <button
+                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
+                          onClick={handleCopyGoogleFormsUrl}
+                          title='Copy URL'
+                          style={{ minWidth: '36px' }}
+                        >
+                          {googleFormsCopiedUrl ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Apps Script */}
+                  {googleFormsResult.appsScript && (
+                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                      <div className='d-flex align-items-center justify-content-between mb-2'>
+                        <div className='fw-medium' style={{ fontSize: '0.83rem', color: '#475569' }}>
+                          Google Apps Script
+                        </div>
+                        <button
+                          className='btn btn-sm btn-outline-secondary d-flex align-items-center gap-1'
+                          onClick={handleCopyGoogleFormsScript}
+                          style={{ fontSize: '0.75rem' }}
+                        >
+                          {googleFormsCopiedScript ? <FiCheck size={14} /> : <FiCopy size={14} />}
+                          <span>{googleFormsCopiedScript ? 'Copied!' : 'Copy Script'}</span>
+                        </button>
+                      </div>
+                      <pre
+                        style={{
+                          fontSize: '0.73rem',
+                          backgroundColor: '#1e293b',
+                          color: '#e2e8f0',
+                          padding: '12px',
+                          borderRadius: '6px',
+                          margin: 0,
+                          whiteSpace: 'pre-wrap',
+                          maxHeight: '200px',
+                          overflowY: 'auto',
+                        }}
+                      >
+                        {googleFormsResult.appsScript}
+                      </pre>
+                    </div>
+                  )}
+
+                  {/* Setup Instructions */}
+                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
+                      Setup Instructions
+                    </div>
+                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      <li className='mb-1'>Open your Google Form in edit mode</li>
+                      <li className='mb-1'>Click the three-dot menu and select "Script editor"</li>
+                      <li className='mb-1'>Replace the default code with the Apps Script above</li>
+                      <li className='mb-1'>Save the script and set up a trigger for "onFormSubmit"</li>
+                      <li>Form responses will automatically be sent as leads</li>
+                    </ol>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className='mb-3'>
+                    <label className='form-label fw-medium'>Connection Name <span className='text-danger'>*</span></label>
+                    <input
+                      type='text'
+                      className='form-control'
+                      placeholder='e.g. My Google Form Leads'
+                      value={googleFormsName}
+                      onChange={(e) => setGoogleFormsName(e.target.value)}
+                    />
+                  </div>
+                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
+                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                      After creating the connection, you will receive a webhook URL and an Apps Script code to paste into your Google Form's script editor.
+                    </p>
+                  </div>
+                </>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              {googleFormsResult ? (
+                <button className='btn btn-sm btn-primary' onClick={() => { setGoogleFormsModalOpen(false); setGoogleFormsResult(null); }}>
+                  Done
+                </button>
+              ) : (
+                <>
+                  <button className='btn btn-sm btn-soft-danger' onClick={() => setGoogleFormsModalOpen(false)}>
+                    Cancel
+                  </button>
+                  <button
+                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
+                    onClick={handleCreateGoogleForms}
+                    disabled={googleFormsCreating || !googleFormsName.trim()}
+                  >
+                    {googleFormsCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
+                    <span>{googleFormsCreating ? 'Creating...' : 'Create Connection'}</span>
                   </button>
                 </>
               )}

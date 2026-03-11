@@ -42,6 +42,13 @@ export const PHONE_CONTACT_UPLOAD_URL = '/api/auth/phone_connect/upload-url';
 export const PHONE_CONTACT_PROCESS_FILE = '/api/auth/phone_connect/process-file';
 export const PHONE_CONTACT_UPLOAD_JSON = '/api/auth/phone_connect/upload-json';
 
+// Google Forms APIs
+export const GOOGLE_FORMS_CONNECT = '/api/auth/google_forms/connect';
+export const GOOGLE_FORMS_CONNECTION = '/api/auth/google_forms/connection';
+export const GOOGLE_FORMS_GET_FIELD_LIST = '/api/auth/google_forms/get-field-list';
+export const GOOGLE_FORMS_APPS_SCRIPT = '/api/auth/google_forms/apps-script';
+export const GOOGLE_FORMS_DELETE = '/api/auth/google_forms';
+
 // Typeform APIs
 export const TYPEFORM_CONNECT = '/api/auth/typeform/connect';
 export const TYPEFORM_CALLBACK = '/api/auth/typeform/callback';

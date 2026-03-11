@@ -69,6 +69,7 @@ const TITLE_RESOLVERS = {
   genericWebhook: (c) => `${c?.configuration?.name} (${c?.configuration?.webhookType})`,
   zohoAccount: (c) => c?.configuration?.accountName,
   typeForm: (c) => c?.configuration?.formName,
+  googleForm: (c) => c?.configuration?.formTitle || c?.configuration?.name,
   accountName: (c) => c?.configuration?.accountName || c.name || c.source,
   connectionName: (c) => c?.configuration?.connectionName || c.name || c.source,
   defaultTitle: (c) => c.name || c.source,
@@ -110,14 +111,10 @@ const PROVIDER_CONFIG = {
 
   // Google Forms
   google_forms: {
-    getTitle: TITLE_RESOLVERS.pageForm,
+    getTitle: TITLE_RESOLVERS.googleForm,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
   form: {
-    getTitle: TITLE_RESOLVERS.pageForm,
-    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
-  },
-  googleForm: {
     getTitle: TITLE_RESOLVERS.pageForm,
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },

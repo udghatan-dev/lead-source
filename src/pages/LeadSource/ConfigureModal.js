@@ -7,6 +7,7 @@ import ZohoConfigForm from './ConfigForms/ZohoConfigForm';
 import GenericWebhookConfigForm from './ConfigForms/GenericWebhookConfigForm';
 import PhoneContactConfigForm from './ConfigForms/PhoneContactConfigForm';
 import TypeformConfigForm from './ConfigForms/TypeformConfigForm';
+import GoogleFormsConfigForm from './ConfigForms/GoogleFormsConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -22,6 +23,8 @@ const PROVIDER_FORM_MAP = {
   webhook: GenericWebhookConfigForm,
   phone_connect: PhoneContactConfigForm,
   typeform: TypeformConfigForm,
+  google_forms: GoogleFormsConfigForm,
+  googleForm: GoogleFormsConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
