@@ -6,9 +6,7 @@ const leadsourceAxios = axios.create({
   baseURL: LEADSOURCE_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-    'ngrok-skip-browser-warning': 'true',
-    'env': 'dev',
-    'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+    Authorization: `Bearer ${localStorage.getItem('authToken')}`,
   },
 });
 
