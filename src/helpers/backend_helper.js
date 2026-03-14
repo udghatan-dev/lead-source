@@ -384,6 +384,9 @@ export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
 export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);
 
+// Analytics
+export const getLeadsBySource = (data) => leadsourceApi.get(lsUrl.ANALYTICS_LEADS_BY_SOURCE, data);
+
 // === voice agent===
 // export const createVoiceConfig = (data) => api.create(url.VOICE_CONFIG, data);
 // export const fetchVoiceConfig = (data) => api.get(`${url.VOICE_CONFIG}/${data.id}`, {});

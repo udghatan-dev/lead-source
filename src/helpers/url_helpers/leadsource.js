@@ -78,6 +78,9 @@ export const HUBSPOT_SAVE_SELECTION = '/api/auth/hubspot/save-selection';
 export const HUBSPOT_GET_FIELD_LIST = '/api/auth/hubspot/get-field-list';
 export const HUBSPOT_DELETE = '/api/auth/hubspot';
 
+// Analytics APIs
+export const ANALYTICS_LEADS_BY_SOURCE = '/api/analytics/leads-by-source';
+
 export const CRM_FIELDS = 'https://mapi.1automations.com/api/v2/crm/fields';
 export const FIELD_MAPPING = '/api/auth/field-mapping';
 export const FIELD_MAPPING_UPSERT = '/api/auth/field-mapping/upsert';

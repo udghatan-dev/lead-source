@@ -783,7 +783,7 @@ const LeadSources = (props) => {
         <MetaTag pageTitle='CRM - Lead Source' />
         <Container fluid>
           <BreadCrumb title='Lead Source' pageTitle='CRM' />
-          {/* Search Bar */}
+          {/* Search Bar & Analytics Button */}
           <div className='row mb-4'>
             <div className='col-md-6'>
               <div className='input-group' style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
@@ -802,6 +802,15 @@ const LeadSources = (props) => {
                   }}
                 />
               </div>
+            </div>
+            <div className='col-md-6 d-flex justify-content-end'>
+              <button
+                className='btn btn-sm btn-primary d-flex align-items-center gap-2'
+                onClick={() => history.push(`/settings/analytics?tab=${activeTab}`)}
+              >
+                <i className='ri-bar-chart-2-line'></i>
+                <span>Analytics</span>
+              </button>
             </div>
           </div>
 
