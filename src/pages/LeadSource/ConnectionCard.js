@@ -248,12 +248,13 @@ const ActionButton = ({ actionKey, onClick }) => {
 };
 
 // --- Main ConnectionCard component ---
-const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapping, onLogs, onSyncLeads, onDelete }) => {
+const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapping, onLogs, onSyncLeads, onToggleStatus, onDelete }) => {
   const history = useHistory();
   const config = getProviderConfig(connection);
   const title = config.getTitle(connection);
   const subTitle = config.getSubTitle?.(connection);
   const connectionId = connection._id || connection.id;
+  const isActive = connection.status === 'active';
 
   const actionHandlers = {
     configure: () => onConfigure(connection),
@@ -309,29 +310,52 @@ const ConnectionCard = ({ connection, icon, onConfigure, onWebhooks, onFieldMapp
                 style={{ color: '#1e293b', fontWeight: '600', fontSize: '0.95rem' }}
               >
                 {title}
-              </h6> 
+              </h6>
               {subTitle && (
                 <span className='d-block text-muted mt-1' style={{ fontSize: '0.7rem' }}>
                   {subTitle}
                 </span>
-              )}             
+              )}
               {connection?.configuration?.lastApiCallAt && (connection.provider === 'indiamart' || connection.source === 'indiamart' || connection.provider === 'zoho' || connection.provider === 'zoho_crm' || connection.source === 'zoho_crm') && (
                 <span className='d-block text-muted mt-1' style={{ fontSize: '0.7rem' }}>
                   Last Sync: {new Date(connection.configuration.lastApiCallAt).toLocaleString()}
                 </span>
               )}
-              <span
-                className='badge'
+            </div>
+            {/* Toggle Switch */}
+            <div
+              className='d-flex align-items-center gap-1 ms-2'
+              title={isActive ? 'Deactivate connection' : 'Activate connection'}
+              style={{ cursor: 'pointer' }}
+              onClick={(e) => { e.stopPropagation(); onToggleStatus(connection); }}
+            >
+              <span style={{ fontSize: '0.65rem', color: isActive ? '#22c55e' : '#94a3b8', fontWeight: '600' }}>
+                {isActive ? 'ON' : 'OFF'}
+              </span>
+              <div
                 style={{
-                  backgroundColor: connection.status === 'active' ? '#22c55e' : '#f59e0b',
-                  color: 'white',
-                  fontSize: '0.7rem',
-                  fontWeight: '500',
-                  padding: '0.15rem 0.5rem',
+                  width: '36px',
+                  height: '20px',
+                  borderRadius: '10px',
+                  backgroundColor: isActive ? '#22c55e' : '#cbd5e1',
+                  position: 'relative',
+                  transition: 'background-color 0.3s',
                 }}
               >
-                {connection.status || 'active'}
-              </span>
+                <div
+                  style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    backgroundColor: '#fff',
+                    position: 'absolute',
+                    top: '2px',
+                    left: isActive ? '18px' : '2px',
+                    transition: 'left 0.3s',
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                  }}
+                />
+              </div>
             </div>
           </div>
           <p

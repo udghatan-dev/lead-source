@@ -43,6 +43,7 @@ import {
 } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
+import StatusToggleModal from './StatusToggleModal';
 import FieldMappingModal from './FieldMappingModal';
 import ConnectionCard from './ConnectionCard';
 
@@ -127,6 +128,7 @@ const LeadSources = (props) => {
   // Configure, Delete, Logs & Mapping modal state
   const [configureOpen, setConfigureOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [statusToggleOpen, setStatusToggleOpen] = useState(false);
   const [mappingOpen, setMappingOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
 
@@ -406,6 +408,22 @@ const LeadSources = (props) => {
   const handleDeleteClick = (connection) => {
     setSelectedConnection(connection);
     setDeleteOpen(true);
+  };
+
+  const handleToggleStatusClick = (connection) => {
+    setSelectedConnection(connection);
+    setStatusToggleOpen(true);
+  };
+
+  const handleToggleStatusConfirm = async (id, newStatus) => {
+    try {
+      await updateConnections({ _id: id, status: newStatus });
+      setStatusToggleOpen(false);
+      setSelectedConnection(null);
+      fetchConnections(currentPage);
+    } catch (err) {
+      console.error('Failed to toggle connection status:', err);
+    }
   };
 
   const handleLogsClick = (connection) => {
@@ -875,6 +893,7 @@ const LeadSources = (props) => {
                         onFieldMapping={handleMappingClick}
                         onLogs={handleLogsClick}
                         onSyncLeads={handleSyncLeads}
+                        onToggleStatus={handleToggleStatusClick}
                         onDelete={handleDeleteClick}
                       />
                     ))}
@@ -1094,6 +1113,17 @@ const LeadSources = (props) => {
             }}
             connection={selectedConnection}
             onConfirm={handleDeleteConfirm}
+          />
+
+          {/* Status Toggle Modal */}
+          <StatusToggleModal
+            isOpen={statusToggleOpen}
+            toggle={() => {
+              setStatusToggleOpen(false);
+              setSelectedConnection(null);
+            }}
+            connection={selectedConnection}
+            onConfirm={handleToggleStatusConfirm}
           />
 
           {/* Phone Contact Creation Modal */}
