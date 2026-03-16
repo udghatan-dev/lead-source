@@ -165,6 +165,7 @@ const ConnectionSetup = () => {
                   placeholder='Enter a name for this connection'
                   value={connectionName}
                   onChange={(e) => setConnectionName(e.target.value)}
+                  autoComplete='off'
                 />
               </FormGroup>
 
@@ -178,6 +179,7 @@ const ConnectionSetup = () => {
                   placeholder={isIndiaMart ? 'Enter your IndiaMART CRM key' : 'Enter your API key'}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
+                  autoComplete='new-password'
                 />
                 <small className='text-muted'>
                   {isIndiaMart
