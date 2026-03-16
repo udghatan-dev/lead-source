@@ -783,6 +783,13 @@ const LeadSources = (props) => {
         <MetaTag pageTitle='CRM - Lead Source' />
         <Container fluid>
           <BreadCrumb title='Lead Source' pageTitle='CRM' />
+
+          {/* Beta Banner */}
+          <Alert color='info' className='d-flex align-items-center mb-4' style={{ borderRadius: '8px' }}>
+            <i className='ri-gift-line fs-5 me-2'></i>
+            <span>Lead Source is currently in <strong>Beta</strong> and is available <strong>free</strong> for all users during this period.</span>
+          </Alert>
+
           {/* Search Bar & Analytics Button */}
           <div className='row mb-4'>
             <div className='col-md-6'>
