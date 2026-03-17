@@ -15,7 +15,6 @@ import {
   DropdownMenu,
   DropdownItem,
 } from 'reactstrap';
-import { FcBusinessContact } from "react-icons/fc";
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { useHistory } from 'react-router-dom';
@@ -48,66 +47,62 @@ import FieldMappingModal from './FieldMappingModal';
 import ConnectionCard from './ConnectionCard';
 
 //icons
-import { FaMeta } from 'react-icons/fa6';
-import { MdOutlineWebhook } from 'react-icons/md';
 import { SiGoogleads } from 'react-icons/si';
 import { SiLinkedin } from 'react-icons/si';
-import { SiTypeform } from 'react-icons/si';
 import { CgWebsite } from 'react-icons/cg';
-import { SiGoogleforms } from 'react-icons/si';
 import { FaYoutube } from 'react-icons/fa';
 import { FiExternalLink, FiCopy, FiCheck } from 'react-icons/fi';
 import { BsGearWideConnected } from 'react-icons/bs';
 import { ImMobile } from 'react-icons/im';
 import { IoQrCodeOutline } from 'react-icons/io5';
-import { SiZoho } from 'react-icons/si';
-import { FaHubspot } from 'react-icons/fa';
 import { LiaSalesforce } from 'react-icons/lia';
-import { FaIndustry } from 'react-icons/fa';
 import { FaHandshake } from 'react-icons/fa';
 import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
-import { RiSurveyLine } from 'react-icons/ri';
+
+// Local icon assets
+const ICON_PATH = '/leadsource/assets/icons';
+const IconImg = ({ src, alt }) => <img src={src} alt={alt} style={{ width: 32, height: 32, objectFit: 'contain', padding: 0, margin: 0 }} />;
 import { getSessionToken } from '../../helpers/backend_helper';
 import Preloader from '../../Components/Loaders/Preloader';
 import { QRCodeSVG } from 'qrcode.react';
 
 const sourceIconMap = {
   // camelCase keys (used in allSources)
-  facebookLeadAds: <FaMeta />,
-  webhook: <MdOutlineWebhook />,
-  form: <SiGoogleforms />,
-  googleForm: <SiGoogleforms />,
-  typeform: <SiTypeform />,
+  facebookLeadAds: <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />,
+  webhook: <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />,
+  form: <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />,
+  googleForm: <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />,
+  typeform: <IconImg src={`${ICON_PATH}/typeform-icon.svg`} alt="Typeform" />,
   googleAds: <SiGoogleads />,
   linkedinLeadGen: <SiLinkedin />,
   landingPage: <CgWebsite />,
   phoneContact: <ImMobile />,
   ocrApp: <IoQrCodeOutline />,
-  zohoCrm: <SiZoho />,
-  hubspotCrm: <FaHubspot />,
+  zohoCrm: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
+  hubspotCrm: <IconImg src={`${ICON_PATH}/hubspot-icon.svg`} alt="HubSpot" />,
   salesforce: <LiaSalesforce />,
-  indiaMart: <FaIndustry />,
+  indiaMart: <IconImg src={`${ICON_PATH}/Indiamart-icon.png`} alt="IndiaMART" />,
   tradeIndia: <FaHandshake />,
   magicBricks: <BsBuildingsFill />,
   zomato: <MdRestaurant />,
-  generic_webhook: <MdOutlineWebhook />,
-  genericWebhook: <MdOutlineWebhook />,
-  jotForm: <RiSurveyLine />,
-  jotform: <RiSurveyLine />,
-  contactform7: <FcBusinessContact />,
+  generic_webhook: <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />,
+  genericWebhook: <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />,
+  jotForm: <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />,
+  jotform: <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />,
+  contactform7: <IconImg src={`${ICON_PATH}/contact-form-7-icon.png`} alt="Contact Form 7" />,
   // provider keys (returned from API)
-  facebook_leadgen: <FaMeta />,
-  google_forms: <SiGoogleforms />,
+  facebook_leadgen: <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />,
+  google_forms: <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />,
   google_ads: <SiGoogleads />,
   linkedin_leadgen: <SiLinkedin />,
   landing_page: <CgWebsite />,
   phone_contact: <ImMobile />,
   ocr_app: <IoQrCodeOutline />,
-  zoho: <SiZoho />,
-  zoho_crm: <SiZoho />,
-  hubspot: <FaHubspot />,
-  indiamart: <FaIndustry />,
+  zoho: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
+  zoho_crm: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
+  hubspot: <IconImg src={`${ICON_PATH}/hubspot-icon.svg`} alt="HubSpot" />,
+  indiamart: <IconImg src={`${ICON_PATH}/Indiamart-icon.png`} alt="IndiaMART" />,
   trade_india: <FaHandshake />,
   magic_bricks: <BsBuildingsFill />,
 };
@@ -232,7 +227,7 @@ const LeadSources = (props) => {
       version: '0.0.1',
       name: 'Facebook Lead Ads',
       key: 'facebookLeadAds',
-      icon: <FaMeta />,
+      icon: <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />,
       isConnectShow: true,
       description: 'Capture leads directly from Facebook ads',
     },
@@ -242,7 +237,7 @@ const LeadSources = (props) => {
       name: 'Webhook',
       key: 'webhooks',
       isConnectShow: true,
-      icon: <MdOutlineWebhook />,
+      icon: <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />,
       description: 'Receive leads via custom webhook',
     },
     {
@@ -251,7 +246,7 @@ const LeadSources = (props) => {
       name: 'Google Form',
       key: 'googleForm',
       isConnectShow: true,
-      icon: <SiGoogleforms />,
+      icon: <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />,
       description: 'Sync leads from Google Forms',
     },
     {
@@ -260,7 +255,7 @@ const LeadSources = (props) => {
       name: 'JotForm',
       key: 'jotForm',
       isConnectShow: true,
-      icon: <RiSurveyLine />,
+      icon: <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />,
       description: 'Capture leads from JotForm submissions',
     },
     {
@@ -269,8 +264,89 @@ const LeadSources = (props) => {
       name: 'Typeform',
       key: 'typeform',
       isConnectShow: true,
-      icon: <SiTypeform />,
+      icon: <IconImg src={`${ICON_PATH}/typeform-icon.svg`} alt="Typeform" />,
       description: 'Connect with Typeform responses',
+    },
+    {
+      id: 8,
+      version: '0.0.1',
+      name: 'Phone Contact',
+      key: 'phoneContact',
+      isConnectShow: true,
+      icon: <ImMobile />,
+      description: 'Import leads from phone contacts',
+    },
+    {
+      id: 10,
+      version: '0.0.1',
+      name: 'Zoho CRM',
+      key: 'zohoCrm',
+      isConnectShow: true,
+      icon: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
+      description: 'Sync leads from Zoho CRM',
+    },
+    {
+      id: 11,
+      version: '0.0.1',
+      name: 'Hubspot CRM',
+      key: 'hubspotCrm',
+      isConnectShow: true,
+      icon: <IconImg src={`${ICON_PATH}/hubspot-icon.svg`} alt="HubSpot" />,
+      description: 'Sync leads from Hubspot CRM',
+    },
+    {
+      id: 13,
+      version: '0.0.1',
+      name: 'India Mart',
+      key: 'indiaMart',
+      isConnectShow: true,
+      icon: <IconImg src={`${ICON_PATH}/Indiamart-icon.png`} alt="IndiaMART" />,
+      description: 'Capture leads from IndiaMART enquiries',
+    },
+    {
+      id: 17,
+      version: '0.0.1',
+      name: 'Contact Form 7',
+      key: 'contactform7',
+      isConnectShow: true,
+      icon: <IconImg src={`${ICON_PATH}/contact-form-7-icon.png`} alt="Contact Form 7" />,
+      description: 'Capture leads from WordPress Contact Form 7',
+    },
+    {
+      id: 14,
+      version: '0.0.1',
+      name: 'Magic Bricks',
+      key: 'magicBricks',
+      isConnectShow: false,
+      icon: <BsBuildingsFill />,
+      description: 'Capture real estate leads from MagicBricks',
+    },
+    {
+      id: 15,
+      version: '0.0.1',
+      name: 'Zomato',
+      key: 'zomato',
+      isConnectShow: false,
+      icon: <MdRestaurant />,
+      description: 'Import restaurant leads from Zomato',
+    },
+    {
+      id: 12,
+      version: '0.0.1',
+      name: 'Salesforce',
+      key: 'salesforce',
+      isConnectShow: false,
+      icon: <LiaSalesforce />,
+      description: 'Sync leads from Salesforce',
+    },
+    {
+      id: 9,
+      version: '0.0.1',
+      name: 'OCR App',
+      key: 'ocrApp',
+      isConnectShow: false,
+      icon: <IoQrCodeOutline />,
+      description: 'Scan and capture leads via OCR',
     },
     {
       id: 5,
@@ -298,87 +374,6 @@ const LeadSources = (props) => {
       key: 'landingPage',
       icon: <CgWebsite />,
       description: 'Custom landing page forms',
-    },
-    {
-      id: 8,
-      version: '0.0.1',
-      name: 'Phone Contact',
-      key: 'phoneContact',
-      isConnectShow: true,
-      icon: <ImMobile />,
-      description: 'Import leads from phone contacts',
-    },
-    {
-      id: 9,
-      version: '0.0.1',
-      name: 'OCR App',
-      key: 'ocrApp',
-      isConnectShow: false,
-      icon: <IoQrCodeOutline />,
-      description: 'Scan and capture leads via OCR',
-    },
-    {
-      id: 10,
-      version: '0.0.1',
-      name: 'Zoho CRM',
-      key: 'zohoCrm',
-      isConnectShow: true,
-      icon: <SiZoho />,
-      description: 'Sync leads from Zoho CRM',
-    },
-    {
-      id: 11,
-      version: '0.0.1',
-      name: 'Hubspot CRM',
-      key: 'hubspotCrm',
-      isConnectShow: true,
-      icon: <FaHubspot />,
-      description: 'Sync leads from Hubspot CRM',
-    },
-    {
-      id: 12,
-      version: '0.0.1',
-      name: 'Salesforce',
-      key: 'salesforce',
-      isConnectShow: false,
-      icon: <LiaSalesforce />,
-      description: 'Sync leads from Salesforce',
-    },
-    {
-      id: 13,
-      version: '0.0.1',
-      name: 'India Mart',
-      key: 'indiaMart',
-      isConnectShow: true,
-      icon: <FaIndustry />,
-      description: 'Capture leads from IndiaMART enquiries',
-    },
-    {
-      id: 14,
-      version: '0.0.1',
-      name: 'Magic Bricks',
-      key: 'magicBricks',
-      isConnectShow: false,
-      icon: <BsBuildingsFill />,
-      description: 'Capture real estate leads from MagicBricks',
-    },
-    {
-      id: 15,
-      version: '0.0.1',
-      name: 'Zomato',
-      key: 'zomato',
-      isConnectShow: false,
-      icon: <MdRestaurant />,
-      description: 'Import restaurant leads from Zomato',
-    },
-    {
-      id: 17,
-      version: '0.0.1',
-      name: 'Contact Form 7',
-      key: 'contactform7',
-      isConnectShow: true,
-      icon: <FcBusinessContact />,
-      description: 'Capture leads from WordPress Contact Form 7',
     },
   ];
 
@@ -1286,7 +1281,7 @@ const LeadSources = (props) => {
               }}
             >
               <div className='d-flex align-items-center gap-2'>
-                <MdOutlineWebhook style={{ color: '#6366f1' }} />
+                <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />
                 <span>Create Webhook Connection</span>
               </div>
             </ModalHeader>
@@ -1437,7 +1432,7 @@ const LeadSources = (props) => {
               }}
             >
               <div className='d-flex align-items-center gap-2'>
-                <SiGoogleforms style={{ color: '#673ab7' }} />
+                <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />
                 <span>Create Google Forms Connection</span>
               </div>
             </ModalHeader>
@@ -1589,7 +1584,7 @@ const LeadSources = (props) => {
           <Modal isOpen={jotFormModalOpen} toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }} size='md' centered>
             <ModalHeader toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }}>
               <div className='d-flex align-items-center gap-2'>
-                <RiSurveyLine style={{ color: '#FF6100' }} />
+                <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />
                 <span>Create JotForm Connection</span>
               </div>
             </ModalHeader>
@@ -1698,7 +1693,7 @@ const LeadSources = (props) => {
           <Modal isOpen={cf7ModalOpen} toggle={() => { setCf7ModalOpen(false); setCf7Result(null); }} size='md' centered>
             <ModalHeader toggle={() => { setCf7ModalOpen(false); setCf7Result(null); }}>
               <div className='d-flex align-items-center gap-2'>
-                <RiSurveyLine style={{ color: '#2563eb' }} />
+                <IconImg src={`${ICON_PATH}/contact-form-7-icon.png`} alt="Contact Form 7" />
                 <span>Create Contact Form 7 Connection</span>
               </div>
             </ModalHeader>
@@ -1807,7 +1802,7 @@ const LeadSources = (props) => {
           <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='md' centered>
             <ModalHeader toggle={() => setShowModal(false)}>
               <div className='d-flex align-items-center gap-2'>
-                <FaMeta style={{ color: '#1877F2' }} />
+                <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />
                 <span>Facebook Lead Ads</span>
               </div>
             </ModalHeader>
