@@ -213,6 +213,7 @@ const TOP_LEVEL_FIELDS = [
   { slug: 'whatsapp', label: 'WhatsApp' },
   { slug: 'email', label: 'Email' },
   { slug: 'chat_name', label: 'Chat Name' },
+  { slug: 'tags', label: 'Tags', multi: true },
 ];
 
 const FieldMappingModal = ({ isOpen, toggle, connection }) => {
@@ -239,9 +240,18 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
     email: '',
     chat_name: '',
     chat_operator: '',
+    tags: [],
   });
 
   const connectionId = connection?._id || connection?.id;
+
+  // Derive tag options from connection.configuration keys
+  const tagOptions = React.useMemo(() => {
+    const config = connection?.configuration || {};
+    return Object.entries(config)
+      .filter(([key, v]) => typeof v === 'string' && v.trim() && !/token/i.test(key))
+      .map(([key, value]) => ({ key, label: `${key}: ${value}` }));
+  }, [connection]);
 
   const fetchCrmFields = useCallback((page = 1, search = '') => {
     setLoadingCrm(true);
@@ -287,13 +297,24 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
           const existingMappings = data.mappings || [];
           const mapState = {};
           const detailState = {};
-          const topLevel = { whatsapp: '', email: '', chat_name: '', chat_operator: '' };
+          const topLevel = { whatsapp: '', email: '', chat_name: '', chat_operator: '', tags: [] };
           existingMappings.forEach((m) => {
             const key = m.crmFieldId || m.crmFieldKey;
             const slug = m.crmSlug || '';
             // Check if this mapping is a top-level field
             if (TOP_LEVEL_FIELDS.some((tf) => tf.slug === slug)) {
-              topLevel[slug] = m.formFieldKey || m.formFieldId || '';
+              const tf = TOP_LEVEL_FIELDS.find((t) => t.slug === slug);
+              const val = m.formFieldKey || m.formFieldId || '';
+              if (tf?.multi) {
+                // For multi-select fields, accumulate values into an array
+                if (Array.isArray(val)) {
+                  topLevel[slug] = val;
+                } else if (val) {
+                  topLevel[slug] = [...(topLevel[slug] || []), val];
+                }
+              } else {
+                topLevel[slug] = val;
+              }
             } else {
               mapState[key] = m.formFieldKey || m.formFieldId;
               detailState[key] = m;
@@ -312,7 +333,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
           console.error('Failed to fetch field mappings:', err);
           setMappings({});
           setMappingDetails({});
-          setTopLevelMappings({ whatsapp: '', email: '', chat_name: '', chat_operator: '' });
+          setTopLevelMappings({ whatsapp: '', email: '', chat_name: '', chat_operator: '', tags: [] });
           setIsContactCreateOnNewLead(false);
         })
         .finally(() => setLoadingMappings(false));
@@ -321,7 +342,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
       setFormFields([]);
       setMappings({});
       setMappingDetails({});
-      setTopLevelMappings({ whatsapp: '', email: '', chat_name: '', chat_operator: '' });
+      setTopLevelMappings({ whatsapp: '', email: '', chat_name: '', chat_operator: '', tags: [] });
       setIsContactCreateOnNewLead(false);
       setError('');
     }
@@ -355,7 +376,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
   };
 
   // Check if all top-level fields are mapped when toggle is ON
-  const topLevelComplete = TOP_LEVEL_FIELDS.every((tf) => topLevelMappings[tf.slug]);
+  const topLevelComplete = TOP_LEVEL_FIELDS.filter((tf) => !tf.multi).every((tf) => topLevelMappings[tf.slug]);
   const canSave = isContactCreateOnNewLead ? topLevelComplete : true;
 
   const handleSave = async () => {
@@ -379,22 +400,38 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
       });
 
       // Build top-level field mappings
-      const topLevelPayload = TOP_LEVEL_FIELDS
-        .filter((tf) => topLevelMappings[tf.slug])
-        .map((tf) => {
-          const formFieldKey = topLevelMappings[tf.slug];
+      const topLevelPayload = [];
+      TOP_LEVEL_FIELDS.forEach((tf) => {
+        const val = topLevelMappings[tf.slug];
+        if (tf.multi && Array.isArray(val) && val.length > 0) {
+          // For multi-select fields, send each selected value as a separate mapping entry
+          val.forEach((formFieldKey) => {
+            const formField = formFields.find(
+              (f) => (f.key || f.id || f.name) === formFieldKey,
+            );
+            topLevelPayload.push({
+              crmFieldId: tf.slug,
+              crmFieldName: tf.label,
+              crmFieldKey: tf.slug,
+              crmSlug: tf.slug,
+              formFieldKey,
+              formFieldName: formField?.name || formField?.label || formFieldKey,
+            });
+          });
+        } else if (!tf.multi && val) {
           const formField = formFields.find(
-            (f) => (f.key || f.id || f.name) === formFieldKey,
+            (f) => (f.key || f.id || f.name) === val,
           );
-          return {
+          topLevelPayload.push({
             crmFieldId: tf.slug,
             crmFieldName: tf.label,
             crmFieldKey: tf.slug,
             crmSlug: tf.slug,
-            formFieldKey,
-            formFieldName: formField?.name || formField?.label || formFieldKey,
-          };
-        });
+            formFieldKey: val,
+            formFieldName: formField?.name || formField?.label || val,
+          });
+        }
+      });
 
       await upsertFieldMappings({
         connectionId,
@@ -411,7 +448,11 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
     }
   };
 
-  const mappedCount = Object.keys(mappings).length + TOP_LEVEL_FIELDS.filter((tf) => topLevelMappings[tf.slug]).length;
+  const mappedCount = Object.keys(mappings).length + TOP_LEVEL_FIELDS.reduce((count, tf) => {
+    const val = topLevelMappings[tf.slug];
+    if (tf.multi) return count + (Array.isArray(val) ? val.length : 0);
+    return count + (val ? 1 : 0);
+  }, 0);
 
   const isLoading = loadingCrm || loadingMappings || loadingForms;
 
@@ -507,39 +548,113 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
             <div className='text-muted mb-3' style={{ fontSize: '0.75rem' }}>
               Map these fields to enable auto-contact creation
             </div>
-            {TOP_LEVEL_FIELDS.map((tf) => (
-              <div key={tf.slug} className='d-flex align-items-center gap-2 mb-2'>
-                <div style={{ width: '110px', flexShrink: 0 }}>
-                  <span className='fw-medium' style={{ fontSize: '0.83rem' }}>{tf.label}</span>
-                  <span style={{ color: '#dc2626', marginLeft: '2px' }}>*</span>
+            {TOP_LEVEL_FIELDS.map((tf) => {
+              const val = topLevelMappings[tf.slug];
+              const hasValue = tf.multi ? (Array.isArray(val) && val.length > 0) : !!val;
+              const isRequired = !tf.multi;
+
+              return (
+                <div key={tf.slug} className='d-flex align-items-start gap-2 mb-2'>
+                  <div style={{ width: '110px', flexShrink: 0, paddingTop: '5px' }}>
+                    <span className='fw-medium' style={{ fontSize: '0.83rem' }}>{tf.label}</span>
+                    {isRequired && <span style={{ color: '#dc2626', marginLeft: '2px' }}>*</span>}
+                  </div>
+                  <div style={{ fontSize: '1rem', color: hasValue ? '#22c55e' : '#e2e8f0', paddingTop: '5px' }}>
+                    {hasValue ? <BiLink /> : <BiUnlink />}
+                  </div>
+                  <div className='flex-grow-1'>
+                    {tf.multi ? (
+                      <>
+                        {/* Selected tags as chips */}
+                        {Array.isArray(val) && val.length > 0 && (
+                          <div className='d-flex flex-wrap gap-1 mb-1'>
+                            {val.map((tagKey) => {
+                              const opt = tagOptions.find((t) => t.key === tagKey);
+                              return (
+                                <span
+                                  key={tagKey}
+                                  className='d-inline-flex align-items-center gap-1'
+                                  style={{
+                                    backgroundColor: '#eff6ff',
+                                    color: '#2563eb',
+                                    fontSize: '0.75rem',
+                                    fontWeight: '500',
+                                    padding: '2px 8px',
+                                    borderRadius: '12px',
+                                    border: '1px solid #bfdbfe',
+                                  }}
+                                >
+                                  {opt?.label || tagKey}
+                                  <IoMdClose
+                                    size={12}
+                                    style={{ cursor: 'pointer', marginLeft: '2px' }}
+                                    onClick={() => {
+                                      setTopLevelMappings((prev) => ({
+                                        ...prev,
+                                        [tf.slug]: prev[tf.slug].filter((k) => k !== tagKey),
+                                      }));
+                                    }}
+                                  />
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {/* Dropdown to add more */}
+                        <Input
+                          type='select'
+                          bsSize='sm'
+                          value=''
+                          onChange={(e) => {
+                            const selected = e.target.value;
+                            if (!selected) return;
+                            setTopLevelMappings((prev) => {
+                              const current = Array.isArray(prev[tf.slug]) ? prev[tf.slug] : [];
+                              if (current.includes(selected)) return prev;
+                              return { ...prev, [tf.slug]: [...current, selected] };
+                            });
+                          }}
+                          style={{
+                            fontSize: '0.8rem',
+                            borderColor: '#d1d5db',
+                          }}
+                        >
+                          <option value=''>-- Add a tag --</option>
+                          {tagOptions
+                            .filter((opt) => !(Array.isArray(val) && val.includes(opt.key)))
+                            .map((opt) => (
+                              <option key={opt.key} value={opt.key}>
+                                {opt.label}
+                              </option>
+                            ))}
+                        </Input>
+                      </>
+                    ) : (
+                      <Input
+                        type='select'
+                        bsSize='sm'
+                        value={val || ''}
+                        onChange={(e) => handleTopLevelChange(tf.slug, e.target.value)}
+                        style={{
+                          fontSize: '0.8rem',
+                          borderColor: !val ? '#fbbf24' : '#d1d5db',
+                        }}
+                      >
+                        <option value=''>-- Select form field --</option>
+                        {formFields?.map((ff) => {
+                          const ffKey = ff.key || ff.id || ff.name;
+                          return (
+                            <option key={ffKey} value={ffKey}>
+                              {ff.name || ff.label}
+                            </option>
+                          );
+                        })}
+                      </Input>
+                    )}
+                  </div>
                 </div>
-                <div style={{ fontSize: '1rem', color: topLevelMappings[tf.slug] ? '#22c55e' : '#e2e8f0' }}>
-                  {topLevelMappings[tf.slug] ? <BiLink /> : <BiUnlink />}
-                </div>
-                <div className='flex-grow-1'>
-                  <Input
-                    type='select'
-                    bsSize='sm'
-                    value={topLevelMappings[tf.slug] || ''}
-                    onChange={(e) => handleTopLevelChange(tf.slug, e.target.value)}
-                    style={{
-                      fontSize: '0.8rem',
-                      borderColor: !topLevelMappings[tf.slug] ? '#fbbf24' : '#d1d5db',
-                    }}
-                  >
-                    <option value=''>-- Select form field --</option>
-                    {formFields?.map((ff) => {
-                      const ffKey = ff.key || ff.id || ff.name;
-                      return (
-                        <option key={ffKey} value={ffKey}>
-                          {ff.name || ff.label}
-                        </option>
-                      );
-                    })}
-                  </Input>
-                </div>
-              </div>
-            ))}
+              );
+            })}
             {!topLevelComplete && (
               <div className='mt-2' style={{ fontSize: '0.75rem', color: '#b45309' }}>
                 All fields must be mapped to enable saving
