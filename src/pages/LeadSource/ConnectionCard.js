@@ -70,8 +70,9 @@ const TITLE_RESOLVERS = {
   zohoAccount: (c) => c?.configuration?.accountName,
   typeForm: (c) => c?.configuration?.formName,
   googleForm: (c) => c?.configuration?.formTitle || c?.configuration?.name,
-  contactform7: (c) => `${c?.configuration?.name}`,
+  contactform7: (c) => c?.configuration?.formTitle ? `${c?.configuration?.formTitle} (${c?.configuration?.formId})` : c?.configuration?.name,
   hubspot: (c) => `${c?.configuration?.userEmail} ${c?.configuration?.hubDomain}`,
+  phoneConnect: (c) => c?.configuration?.name ? c?.configuration?.name : c?.configuration?.accountName,
   accountName: (c) => c?.configuration?.accountName || c.name || c.source,
   connectionName: (c) => c?.configuration?.connectionName || c.name || c.source,
   defaultTitle: (c) => c.name || c.source,
@@ -156,14 +157,14 @@ const PROVIDER_CONFIG = {
 
   // Phone Contact
   phone_connect: {
-    getTitle: TITLE_RESOLVERS.accountName,
+    getTitle: TITLE_RESOLVERS.phoneConnect,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
 
   // OCR App
   ocr_app: {
-    getTitle: TITLE_RESOLVERS.connectionName,
-    actions: ['configure', 'logs', 'delete'],
+    getTitle: TITLE_RESOLVERS.phoneConnect,
+    actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
 
   zohoCrm: {

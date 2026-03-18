@@ -11,6 +11,7 @@ import GoogleFormsConfigForm from './ConfigForms/GoogleFormsConfigForm';
 import JotFormConfigForm from './ConfigForms/JotFormConfigForm';
 import ContactForm7ConfigForm from './ConfigForms/ContactForm7ConfigForm';
 import HubspotConfigForm from './ConfigForms/HubspotConfigForm';
+import OcrConfigForm from './ConfigForms/OcrConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -25,6 +26,7 @@ const PROVIDER_FORM_MAP = {
   genericWebhook: GenericWebhookConfigForm,
   webhook: GenericWebhookConfigForm,
   phone_connect: PhoneContactConfigForm,
+  ocr_app: OcrConfigForm,
   typeform: TypeformConfigForm,
   google_forms: GoogleFormsConfigForm,
   googleForm: GoogleFormsConfigForm,

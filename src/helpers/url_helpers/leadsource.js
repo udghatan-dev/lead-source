@@ -42,6 +42,12 @@ export const PHONE_CONTACT_UPLOAD_URL = '/api/auth/phone_connect/upload-url';
 export const PHONE_CONTACT_PROCESS_FILE = '/api/auth/phone_connect/process-file';
 export const PHONE_CONTACT_UPLOAD_JSON = '/api/auth/phone_connect/upload-json';
 
+// OCR App APIs
+export const OCR_APP_CONNECT = '/api/auth/ocr_app/connect';
+export const OCR_APP_CONNECTION = '/api/auth/ocr_app/connection';
+export const OCR_APP_GET_FIELD_LIST = '/api/auth/ocr_app/get-field-list';
+export const OCR_APP_DELETE = '/api/auth/ocr_app';
+
 // JotForm APIs
 export const JOTFORM_CONNECT = '/api/auth/jotform/connect';
 export const JOTFORM_CONNECTION = '/api/auth/jotform/connection';

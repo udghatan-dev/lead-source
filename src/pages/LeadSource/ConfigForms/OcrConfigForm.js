@@ -8,9 +8,9 @@ import {
 import { ImMobile } from 'react-icons/im';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
-import { getPhoneContactConnection } from '../../../helpers/backend_helper';
+import { getOcrAppConnection } from '../../../helpers/backend_helper';
 
-const PhoneContactConfigForm = ({ connection, toggle }) => {
+const OcrConfigForm = ({ connection, toggle }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [connectionDetails, setConnectionDetails] = useState(null);
@@ -22,7 +22,7 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
     if (!connectionId) return;
     setLoading(true);
     setError('');
-    getPhoneContactConnection(connectionId)
+    getOcrAppConnection(connectionId)
       .then((res) => {
         setConnectionDetails(res.data || res || {});
       })
@@ -64,7 +64,7 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
               <div className='d-flex align-items-center justify-content-between'>
                 <p className='mb-0 fw-medium' style={{ fontSize: '0.85rem', color: '#a16207' }}>
                   <ImMobile className='me-1' />
-                  Phone Contact Connection
+                  Ocr Connection
                 </p>
                 <span
                   className='badge'
@@ -185,4 +185,4 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
   );
 };
 
-export default PhoneContactConfigForm;
+export default OcrConfigForm;

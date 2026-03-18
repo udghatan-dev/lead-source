@@ -345,6 +345,12 @@ export const getPhoneContactUploadUrl = (id) => leadsourceApi.get(`${lsUrl.PHONE
 export const processPhoneContactFile = (id) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_PROCESS_FILE}/${id}`);
 export const uploadPhoneContactJson = (id, data) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_UPLOAD_JSON}/${id}`, data);
 
+// OCR App
+export const connectOcrApp = (data) => leadsourceApi.create(lsUrl.OCR_APP_CONNECT, data);
+export const getOcrAppConnection = (id) => leadsourceApi.get(`${lsUrl.OCR_APP_CONNECTION}/${id}`);
+export const deleteOcrAppConnection = (id) => leadsourceApi.delete(`${lsUrl.OCR_APP_DELETE}/${id}/delete-connection`);
+export const getOcrAppFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.OCR_APP_GET_FIELD_LIST}?connectionId=${connectionId}`);
+
 // JotForm
 export const connectJotForm = (data) => leadsourceApi.create(lsUrl.JOTFORM_CONNECT, data);
 export const getJotFormConnection = (id) => leadsourceApi.get(`${lsUrl.JOTFORM_CONNECTION}/${id}`);

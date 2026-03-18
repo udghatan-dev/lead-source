@@ -4,10 +4,6 @@ import { withTranslation } from 'react-i18next';
 import PropTypes from 'prop-types';
 import {
   Container,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Spinner,
   Alert,
   UncontrolledDropdown,
@@ -32,12 +28,6 @@ import {
   pullIndiamartLeads,
   pullZohoLeads,
   updateConnections,
-  connectGenericWebhook,
-  connectPhoneContact,
-  connectGoogleForms,
-  getGoogleFormsAppsScript,
-  connectJotForm,
-  connectContactForm7,
   deleteHubspotConnection
 } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
@@ -45,13 +35,20 @@ import DeleteConfirmModal from './DeleteConfirmModal';
 import StatusToggleModal from './StatusToggleModal';
 import FieldMappingModal from './FieldMappingModal';
 import ConnectionCard from './ConnectionCard';
+import PhoneContactModal from './models/PhoneContactModal';
+import WebhookCreationModal from './models/WebhookCreationModal';
+import GoogleFormsModal from './models/GoogleFormsModal';
+import JotFormModal from './models/JotFormModal';
+import ContactForm7Modal from './models/ContactForm7Modal';
+import FacebookLeadAdsModal from './models/FacebookLeadAdsModal';
+import OcrAppModal from './models/OcrAppModal';
 
 //icons
 import { SiGoogleads } from 'react-icons/si';
 import { SiLinkedin } from 'react-icons/si';
 import { CgWebsite } from 'react-icons/cg';
 import { FaYoutube } from 'react-icons/fa';
-import { FiExternalLink, FiCopy, FiCheck } from 'react-icons/fi';
+import { FiExternalLink } from 'react-icons/fi';
 import { BsGearWideConnected } from 'react-icons/bs';
 import { ImMobile } from 'react-icons/im';
 import { IoQrCodeOutline } from 'react-icons/io5';
@@ -65,7 +62,6 @@ const ICON_PATH = '/leadsource/assets/icons';
 const IconImg = ({ src, alt }) => <img src={src} alt={alt} style={{ width: 32, height: 32, objectFit: 'contain', padding: 0, margin: 0 }} />;
 import { getSessionToken } from '../../helpers/backend_helper';
 import Preloader from '../../Components/Loaders/Preloader';
-import { QRCodeSVG } from 'qrcode.react';
 
 const sourceIconMap = {
   // camelCase keys (used in allSources)
@@ -127,47 +123,13 @@ const LeadSources = (props) => {
   const [mappingOpen, setMappingOpen] = useState(false);
   const [selectedConnection, setSelectedConnection] = useState(null);
 
-  // Generic Webhook creation modal state
+  // Creation modal open states
   const [webhookModalOpen, setWebhookModalOpen] = useState(false);
-  const [webhookName, setWebhookName] = useState('');
-  const [webhookType, setWebhookType] = useState('');
-  const [webhookCreating, setWebhookCreating] = useState(false);
-  const [webhookResult, setWebhookResult] = useState(null);
-  const [webhookError, setWebhookError] = useState('');
-  const [webhookCopied, setWebhookCopied] = useState(false);
-
-  // Phone Contact creation modal state
   const [phoneModalOpen, setPhoneModalOpen] = useState(false);
-  const [phoneName, setPhoneName] = useState('');
-  const [phoneCreating, setPhoneCreating] = useState(false);
-  const [phoneError, setPhoneError] = useState('');
-  const [phoneResult, setPhoneResult] = useState(null);
-  const [phoneCopied, setPhoneCopied] = useState(false);
-
-  // Google Forms creation modal state
+  const [ocrModalOpen, setOcrModalOpen] = useState(false);
   const [googleFormsModalOpen, setGoogleFormsModalOpen] = useState(false);
-  const [googleFormsName, setGoogleFormsName] = useState('');
-  const [googleFormsCreating, setGoogleFormsCreating] = useState(false);
-  const [googleFormsResult, setGoogleFormsResult] = useState(null);
-  const [googleFormsError, setGoogleFormsError] = useState('');
-  const [googleFormsCopiedUrl, setGoogleFormsCopiedUrl] = useState(false);
-  const [googleFormsCopiedScript, setGoogleFormsCopiedScript] = useState(false);
-
-  // JotForm creation modal state
   const [jotFormModalOpen, setJotFormModalOpen] = useState(false);
-  const [jotFormName, setJotFormName] = useState('');
-  const [jotFormCreating, setJotFormCreating] = useState(false);
-  const [jotFormResult, setJotFormResult] = useState(null);
-  const [jotFormError, setJotFormError] = useState('');
-  const [jotFormCopied, setJotFormCopied] = useState(false);
-
-  // Contact Form 7 creation modal state
   const [cf7ModalOpen, setCf7ModalOpen] = useState(false);
-  const [cf7Name, setCf7Name] = useState('');
-  const [cf7Creating, setCf7Creating] = useState(false);
-  const [cf7Result, setCf7Result] = useState(null);
-  const [cf7Error, setCf7Error] = useState('');
-  const [cf7Copied, setCf7Copied] = useState(false);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -313,6 +275,15 @@ const LeadSources = (props) => {
       description: 'Import leads from phone contacts',
     },
     {
+      id: 9,
+      version: '0.0.1',
+      name: 'OCR App',
+      key: 'ocrApp',
+      isConnectShow: false,
+      icon: <IoQrCodeOutline />,
+      description: 'Scan and capture leads via OCR',
+    },
+    {
       id: 14,
       version: '0.0.1',
       name: 'Magic Bricks',
@@ -338,15 +309,6 @@ const LeadSources = (props) => {
       isConnectShow: false,
       icon: <LiaSalesforce />,
       description: 'Sync leads from Salesforce',
-    },
-    {
-      id: 9,
-      version: '0.0.1',
-      name: 'OCR App',
-      key: 'ocrApp',
-      isConnectShow: false,
-      icon: <IoQrCodeOutline />,
-      description: 'Scan and capture leads via OCR',
     },
     {
       id: 5,
@@ -441,6 +403,8 @@ const LeadSources = (props) => {
       await deleteGenericWebhookConnection(id);
     } else if (provider === 'phone_contact' || provider === 'phoneContact') {
       await deletePhoneContactConnection(id);
+    } else if (provider === 'ocr') {
+      await deleteOcrConnection(id);
     } else if (provider === 'typeform') {
       await deleteTypeformConnection(id);
     } else if (provider === 'google_forms' || provider === 'googleForm') {
@@ -513,44 +477,26 @@ const LeadSources = (props) => {
         break;
       }
       case 'webhooks': {
-        setWebhookName('');
-        setWebhookType('');
-        setWebhookResult(null);
-        setWebhookError('');
-        setWebhookCopied(false);
         setWebhookModalOpen(true);
         break;
       }
       case 'phoneContact': {
-        setPhoneName('');
-        setPhoneError('');
-        setPhoneResult(null);
-        setPhoneCopied(false);
         setPhoneModalOpen(true);
         break;
       }
+      case 'ocrApp': {
+        setOcrModalOpen(true);
+        break;
+      }
       case 'googleForm': {
-        setGoogleFormsName('');
-        setGoogleFormsError('');
-        setGoogleFormsResult(null);
-        setGoogleFormsCopiedUrl(false);
-        setGoogleFormsCopiedScript(false);
         setGoogleFormsModalOpen(true);
         break;
       }
       case 'jotForm': {
-        setJotFormName('');
-        setJotFormError('');
-        setJotFormResult(null);
-        setJotFormCopied(false);
         setJotFormModalOpen(true);
         break;
       }
       case 'contactform7': {
-        setCf7Name('');
-        setCf7Error('');
-        setCf7Result(null);
-        setCf7Copied(false);
         setCf7ModalOpen(true);
         break;
       }
@@ -626,169 +572,8 @@ const LeadSources = (props) => {
     setLoading(false);
   }
 
-  const toSlug = (str) => str.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9_-]/g, '').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  const handleConnectionCreated = () => fetchConnections(currentPage);
 
-  const handleCreateWebhook = async () => {
-    if (!webhookName) {
-      setWebhookError('Please enter a connection name.');
-      return;
-    }
-    setWebhookCreating(true);
-    setWebhookError('');
-    try {
-      const res = await connectGenericWebhook({
-        type: webhookType || 'generic',
-        accountName: toSlug(webhookName),
-        name: webhookName,
-      });
-      setWebhookResult(res.data || res);
-      fetchConnections(currentPage);
-    } catch (err) {
-      setWebhookError(err?.msg || err?.response?.data?.msg || 'Failed to create webhook connection.');
-    } finally {
-      setWebhookCreating(false);
-    }
-  };
-
-  const handleCopyWebhookUrl = () => {
-    const url = webhookResult?.webhookUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setWebhookCopied(true);
-      setTimeout(() => setWebhookCopied(false), 2000);
-    });
-  };
-
-  const handleCreatePhoneContact = async () => {
-    if (!phoneName) {
-      setPhoneError('Please enter a connection name.');
-      return;
-    }
-    setPhoneCreating(true);
-    setPhoneError('');
-    try {
-      const res = await connectPhoneContact({ accountName: toSlug(phoneName), name: phoneName });
-      setPhoneResult(res.data || res);
-      fetchConnections(currentPage);
-    } catch (err) {
-      setPhoneError(err?.msg || err?.response?.data?.msg || 'Failed to create phone contact connection.');
-    } finally {
-      setPhoneCreating(false);
-    }
-  };
-
-  const handleCopyPhoneUrl = () => {
-    const url = phoneResult?.webhookUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setPhoneCopied(true);
-      setTimeout(() => setPhoneCopied(false), 2000);
-    });
-  };
-
-  const handleCreateGoogleForms = async () => {
-    if (!googleFormsName) {
-      setGoogleFormsError('Please enter a connection name.');
-      return;
-    }
-    setGoogleFormsCreating(true);
-    setGoogleFormsError('');
-    try {
-      const res = await connectGoogleForms({ accountName: toSlug(googleFormsName), name: googleFormsName });
-      const connectionData = res.data || res;
-      const connectionId = connectionData?._id || connectionData?.id || connectionData?.connectionId;
-
-      // Fetch Apps Script code using the new connection ID
-      let appsScript = connectionData?.appsScript || '';
-      if (!appsScript && connectionId) {
-        try {
-          const scriptRes = await getGoogleFormsAppsScript(connectionId);
-          appsScript = scriptRes?.data?.script || scriptRes?.script || scriptRes?.data?.appsScript || scriptRes?.appsScript || '';
-        } catch (e) {
-          console.error('Failed to fetch Apps Script:', e);
-        }
-      }
-
-      setGoogleFormsResult({ ...connectionData, appsScript });
-      fetchConnections(currentPage);
-    } catch (err) {
-      setGoogleFormsError(err?.msg || err?.response?.data?.msg || 'Failed to create Google Forms connection.');
-    } finally {
-      setGoogleFormsCreating(false);
-    }
-  };
-
-  const handleCopyGoogleFormsUrl = () => {
-    const url = googleFormsResult?.webhookUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setGoogleFormsCopiedUrl(true);
-      setTimeout(() => setGoogleFormsCopiedUrl(false), 2000);
-    });
-  };
-
-  const handleCopyGoogleFormsScript = () => {
-    const script = googleFormsResult?.appsScript;
-    if (!script) return;
-    navigator.clipboard.writeText(script).then(() => {
-      setGoogleFormsCopiedScript(true);
-      setTimeout(() => setGoogleFormsCopiedScript(false), 2000);
-    });
-  };
-
-  const handleCreateJotForm = async () => {
-    if (!jotFormName) {
-      setJotFormError('Please enter a connection name.');
-      return;
-    }
-    setJotFormCreating(true);
-    setJotFormError('');
-    try {
-      const res = await connectJotForm({ accountName: toSlug(jotFormName), name: jotFormName });
-      setJotFormResult(res.data || res);
-      fetchConnections(currentPage);
-    } catch (err) {
-      setJotFormError(err?.msg || err?.response?.data?.msg || 'Failed to create JotForm connection.');
-    } finally {
-      setJotFormCreating(false);
-    }
-  };
-
-  const handleCopyJotFormUrl = () => {
-    const url = jotFormResult?.webhookUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setJotFormCopied(true);
-      setTimeout(() => setJotFormCopied(false), 2000);
-    });
-  };
-
-  const handleCreateContactForm7 = async () => {
-    if (!cf7Name) {
-      setCf7Error('Please enter a connection name.');
-      return;
-    }
-    setCf7Creating(true);
-    setCf7Error('');
-    try {
-      const res = await connectContactForm7({ accountName: toSlug(cf7Name), name: cf7Name });
-      setCf7Result(res.data || res);
-      fetchConnections(currentPage);
-    } catch (err) {
-      setCf7Error(err?.msg || err?.response?.data?.msg || 'Failed to create Contact Form 7 connection.');
-    } finally {
-      setCf7Creating(false);
-    }
-  };
-
-  const handleCopyCf7Url = () => {
-    const url = cf7Result?.webhookUrl;
-    if (!url) return;
-    navigator.clipboard.writeText(url).then(() => {
-      setCf7Copied(true);
-      setTimeout(() => setCf7Copied(false), 2000);
-    });
-  };
 
   return (
     <React.Fragment>
@@ -1122,704 +907,53 @@ const LeadSources = (props) => {
           />
 
           {/* Phone Contact Creation Modal */}
-          <Modal
+          <PhoneContactModal
             isOpen={phoneModalOpen}
-            toggle={() => {
-              setPhoneModalOpen(false);
-              setPhoneResult(null);
-            }}
-            size='md'
-            centered
-          >
-            <ModalHeader
-              toggle={() => {
-                setPhoneModalOpen(false);
-                setPhoneResult(null);
-              }}
-            >
-              <div className='d-flex align-items-center gap-2'>
-                <ImMobile style={{ color: '#f59e0b' }} />
-                <span>Create Phone Contact Connection</span>
-              </div>
-            </ModalHeader>
-            <ModalBody>
-              {phoneError && (
-                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setPhoneError('')}>
-                  {phoneError}
-                </Alert>
-              )}
+            toggle={() => setPhoneModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
-              {phoneResult ? (
-                <>
-                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
-                    Phone Contact connection created successfully!
-                  </Alert>
-
-                  {/* Webhook URL */}
-                  {phoneResult.webhookUrl && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
-                        Your Webhook URL
-                      </div>
-                      <div className='d-flex align-items-center gap-2'>
-                        <code
-                          className='flex-grow-1 p-2 rounded'
-                          style={{
-                            fontSize: '0.75rem',
-                            backgroundColor: '#fff',
-                            border: '1px solid #e2e8f0',
-                            wordBreak: 'break-all',
-                            display: 'block',
-                          }}
-                        >
-                          {phoneResult.webhookUrl}
-                        </code>
-                        <button
-                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
-                          onClick={handleCopyPhoneUrl}
-                          title='Copy URL'
-                          style={{ minWidth: '36px' }}
-                        >
-                          {phoneCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* QR Code */}
-                  {phoneResult.webhookUrl && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                        Scan QR Code with your Phone
-                      </div>
-                      <p className='text-muted mb-3' style={{ fontSize: '0.75rem' }}>
-                        Open your phone camera and scan this QR code to access the webhook URL.
-                      </p>
-                      <div className='d-flex justify-content-center'>
-                        <QRCodeSVG
-                          value={phoneResult.webhookUrl}
-                          size={200}
-                          level='M'
-                          includeMargin
-                          style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px', backgroundColor: '#fff' }}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Instructions */}
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                      How to Use
-                    </div>
-                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      <li className='mb-1'>Scan the QR code above with your phone camera</li>
-                      <li className='mb-1'>Open the link to send contacts from your phone</li>
-                      <li>Contacts will automatically be imported as leads</li>
-                    </ol>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>
-                      Connection Name <span className='text-danger'>*</span>
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. My Phone Contacts'
-                      value={phoneName}
-                      onChange={(e) => setPhoneName(e.target.value)}
-                    />
-                  </div>
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      A webhook URL will be created and a QR code will be generated for you to scan with your phone.
-                    </p>
-                  </div>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              <button
-                className='btn btn-sm btn-soft-danger'
-                onClick={() => {
-                  setPhoneModalOpen(false);
-                  setPhoneResult(null);
-                }}
-              >
-                {phoneResult ? 'Close' : 'Cancel'}
-              </button>
-              {!phoneResult && (
-                <button
-                  className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                  onClick={handleCreatePhoneContact}
-                  disabled={phoneCreating || !phoneName}
-                >
-                  {phoneCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
-                  <span>{phoneCreating ? 'Creating...' : 'Create Connection'}</span>
-                </button>
-              )}
-            </ModalFooter>
-          </Modal>
+          {/* OCR App Creation Modal */}
+          <OcrAppModal
+            isOpen={ocrModalOpen}
+            toggle={() => setOcrModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
           {/* Generic Webhook Creation Modal */}
-          <Modal
+          <WebhookCreationModal
             isOpen={webhookModalOpen}
-            toggle={() => {
-              setWebhookModalOpen(false);
-              setWebhookResult(null);
-            }}
-            size='md'
-            centered
-          >
-            <ModalHeader
-              toggle={() => {
-                setWebhookModalOpen(false);
-                setWebhookResult(null);
-              }}
-            >
-              <div className='d-flex align-items-center gap-2'>
-                <IconImg src={`${ICON_PATH}/webhook-icon.svg`} alt="Webhook" />
-                <span>Create Webhook Connection</span>
-              </div>
-            </ModalHeader>
-            <ModalBody>
-              {webhookError && (
-                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setWebhookError('')}>
-                  {webhookError}
-                </Alert>
-              )}
-
-              {webhookResult ? (
-                <>
-                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
-                    Webhook connection created successfully!
-                  </Alert>
-                  <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
-                      Your Inbound Webhook URL
-                    </div>
-                    <div className='d-flex align-items-center gap-2'>
-                      <code
-                        className='flex-grow-1 p-2 rounded'
-                        style={{
-                          fontSize: '0.75rem',
-                          backgroundColor: '#fff',
-                          border: '1px solid #e2e8f0',
-                          wordBreak: 'break-all',
-                          display: 'block',
-                        }}
-                      >
-                        {webhookResult.webhookUrl}
-                      </code>
-                      <button
-                        className='btn btn-sm btn-outline-primary d-flex align-items-center'
-                        onClick={handleCopyWebhookUrl}
-                        title='Copy URL'
-                        style={{ minWidth: '36px' }}
-                      >
-                        {webhookCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                      </button>
-                    </div>
-                    <p className='mb-0 mt-2' style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                      Send a POST request with JSON lead data to this URL to ingest leads automatically.
-                    </p>
-                  </div>
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                      Sample Request
-                    </div>
-                    <pre
-                      style={{
-                        fontSize: '0.73rem',
-                        backgroundColor: '#1e293b',
-                        color: '#e2e8f0',
-                        padding: '10px',
-                        borderRadius: '6px',
-                        margin: 0,
-                        whiteSpace: 'pre-wrap',
-                      }}
-                    >
-                      {`POST ${webhookResult.webhookUrl}
-                        Content-Type: application/json
-                        {
-                          "name": "John Doe",
-                          "email": "john@example.com",
-                          "phone": "555-1234"
-                        }`
-                      }
-                    </pre>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>
-                      Connection Name <span className='text-danger'>*</span>
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. My Google Sheet Webhook'
-                      value={webhookName}
-                      onChange={(e) => setWebhookName(e.target.value)}
-                    />
-                  </div>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>
-                      Type <span className='text-muted fw-normal'>(optional)</span>
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. googlesheet, custom'
-                      value={webhookType}
-                      onChange={(e) => {
-                        const val = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
-                        setWebhookType(val);
-                      }}
-                    />
-                    <small className='text-muted'>A label to identify the source type. Leave blank for "generic".</small>
-                  </div>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              {webhookResult ? (
-                <button
-                  className='btn btn-sm btn-primary'
-                  onClick={() => {
-                    setWebhookModalOpen(false);
-                    setWebhookResult(null);
-                  }}
-                >
-                  Done
-                </button>
-              ) : (
-                <>
-                  <button className='btn btn-sm btn-soft-danger' onClick={() => setWebhookModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                    onClick={handleCreateWebhook}
-                    disabled={webhookCreating || !webhookName}
-                  >
-                    {webhookCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
-                    <span>{webhookCreating ? 'Creating...' : 'Create Webhook'}</span>
-                  </button>
-                </>
-              )}
-            </ModalFooter>
-          </Modal>
+            toggle={() => setWebhookModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
           {/* Google Forms Creation Modal */}
-          <Modal
+          <GoogleFormsModal
             isOpen={googleFormsModalOpen}
-            toggle={() => {
-              setGoogleFormsModalOpen(false);
-              setGoogleFormsResult(null);
-            }}
-            size='md'
-            centered
-          >
-            <ModalHeader
-              toggle={() => {
-                setGoogleFormsModalOpen(false);
-                setGoogleFormsResult(null);
-              }}
-            >
-              <div className='d-flex align-items-center gap-2'>
-                <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />
-                <span>Create Google Forms Connection</span>
-              </div>
-            </ModalHeader>
-            <ModalBody>
-              {googleFormsError && (
-                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setGoogleFormsError('')}>
-                  {googleFormsError}
-                </Alert>
-              )}
-
-              {googleFormsResult ? (
-                <>
-                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
-                    Google Forms connection created successfully!
-                  </Alert>
-
-                  {/* Webhook URL */}
-                  {googleFormsResult.webhookUrl && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
-                        Your Inbound Webhook URL
-                      </div>
-                      <div className='d-flex align-items-center gap-2'>
-                        <code
-                          className='flex-grow-1 p-2 rounded'
-                          style={{
-                            fontSize: '0.75rem',
-                            backgroundColor: '#fff',
-                            border: '1px solid #e2e8f0',
-                            wordBreak: 'break-all',
-                            display: 'block',
-                          }}
-                        >
-                          {googleFormsResult.webhookUrl}
-                        </code>
-                        <button
-                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
-                          onClick={handleCopyGoogleFormsUrl}
-                          title='Copy URL'
-                          style={{ minWidth: '36px' }}
-                        >
-                          {googleFormsCopiedUrl ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Apps Script */}
-                  {googleFormsResult.appsScript && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                      <div className='d-flex align-items-center justify-content-between mb-2'>
-                        <div className='fw-medium' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                          Google Apps Script
-                        </div>
-                        <button
-                          className='btn btn-sm btn-outline-secondary d-flex align-items-center gap-1'
-                          onClick={handleCopyGoogleFormsScript}
-                          style={{ fontSize: '0.75rem' }}
-                        >
-                          {googleFormsCopiedScript ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                          <span>{googleFormsCopiedScript ? 'Copied!' : 'Copy Script'}</span>
-                        </button>
-                      </div>
-                      <pre
-                        style={{
-                          fontSize: '0.73rem',
-                          backgroundColor: '#1e293b',
-                          color: '#e2e8f0',
-                          padding: '12px',
-                          borderRadius: '6px',
-                          margin: 0,
-                          whiteSpace: 'pre-wrap',
-                          maxHeight: '200px',
-                          overflowY: 'auto',
-                        }}
-                      >
-                        {googleFormsResult.appsScript}
-                      </pre>
-                    </div>
-                  )}
-
-                  {/* Setup Instructions */}
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                      Setup Instructions
-                    </div>
-                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      <li className='mb-1'>Open your Google Form in edit mode</li>
-                      <li className='mb-1'>Click the three-dot menu and select "Script editor"</li>
-                      <li className='mb-1'>Replace the default code with the Apps Script above</li>
-                      <li className='mb-1'>Save the script and set up a trigger for "onFormSubmit"</li>
-                      <li>Form responses will automatically be sent as leads</li>
-                    </ol>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>
-                      Connection Name <span className='text-danger'>*</span>
-                    </label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. My Google Form Leads'
-                      value={googleFormsName}
-                      onChange={(e) => setGoogleFormsName(e.target.value)}
-                    />
-                  </div>
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      After creating the connection, you will receive a webhook URL and an Apps Script code to paste into your Google Form's
-                      script editor.
-                    </p>
-                  </div>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              {googleFormsResult ? (
-                <button
-                  className='btn btn-sm btn-primary'
-                  onClick={() => {
-                    setGoogleFormsModalOpen(false);
-                    setGoogleFormsResult(null);
-                  }}
-                >
-                  Done
-                </button>
-              ) : (
-                <>
-                  <button className='btn btn-sm btn-soft-danger' onClick={() => setGoogleFormsModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                    onClick={handleCreateGoogleForms}
-                    disabled={googleFormsCreating || !googleFormsName}
-                  >
-                    {googleFormsCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
-                    <span>{googleFormsCreating ? 'Creating...' : 'Create Connection'}</span>
-                  </button>
-                </>
-              )}
-            </ModalFooter>
-          </Modal>
+            toggle={() => setGoogleFormsModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
           {/* JotForm Creation Modal */}
-          <Modal isOpen={jotFormModalOpen} toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }} size='md' centered>
-            <ModalHeader toggle={() => { setJotFormModalOpen(false); setJotFormResult(null); }}>
-              <div className='d-flex align-items-center gap-2'>
-                <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />
-                <span>Create JotForm Connection</span>
-              </div>
-            </ModalHeader>
-            <ModalBody>
-              {jotFormError && (
-                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setJotFormError('')}>
-                  {jotFormError}
-                </Alert>
-              )}
-
-              {jotFormResult ? (
-                <>
-                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
-                    JotForm connection created successfully!
-                  </Alert>
-                  {jotFormResult.webhookUrl && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
-                        Your Inbound Webhook URL
-                      </div>
-                      <div className='d-flex align-items-center gap-2'>
-                        <code
-                          className='flex-grow-1 p-2 rounded'
-                          style={{
-                            fontSize: '0.75rem',
-                            backgroundColor: '#fff',
-                            border: '1px solid #e2e8f0',
-                            wordBreak: 'break-all',
-                            display: 'block',
-                          }}
-                        >
-                          {jotFormResult.webhookUrl}
-                        </code>
-                        <button
-                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
-                          onClick={handleCopyJotFormUrl}
-                          title='Copy URL'
-                          style={{ minWidth: '36px' }}
-                        >
-                          {jotFormCopied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                        </button>
-                      </div>
-                      <p className='mb-0 mt-2' style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        Add this URL as a webhook in your JotForm form settings.
-                      </p>
-                    </div>
-                  )}
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                      Next Steps
-                    </div>
-                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      <li className='mb-1'>Open your form in JotForm</li>
-                      <li className='mb-1'>Go to <strong>Settings</strong> &rarr; <strong>Integrations</strong></li>
-                      <li className='mb-1'>Search for <strong>WebHooks</strong> and select it</li>
-                      <li className='mb-1'>Paste the webhook URL above</li>
-                      <li className='mb-1'>Click <strong>Complete Integration</strong></li>
-                      <li>Submit a test response to verify</li>
-                    </ol>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>Connection Name <span className='text-danger'>*</span></label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. My JotForm Leads'
-                      value={jotFormName}
-                      onChange={(e) => setJotFormName(e.target.value)}
-                    />
-                  </div>
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      After creating the connection, you will receive a webhook URL to add in your JotForm form's webhook integration settings.
-                    </p>
-                  </div>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              {jotFormResult ? (
-                <button className='btn btn-sm btn-primary' onClick={() => { setJotFormModalOpen(false); setJotFormResult(null); }}>
-                  Done
-                </button>
-              ) : (
-                <>
-                  <button className='btn btn-sm btn-soft-danger' onClick={() => setJotFormModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                    onClick={handleCreateJotForm}
-                    disabled={jotFormCreating || !jotFormName}
-                  >
-                    {jotFormCreating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
-                    <span>{jotFormCreating ? 'Creating...' : 'Create Connection'}</span>
-                  </button>
-                </>
-              )}
-            </ModalFooter>
-          </Modal>
+          <JotFormModal
+            isOpen={jotFormModalOpen}
+            toggle={() => setJotFormModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
           {/* Contact Form 7 Creation Modal */}
-          <Modal isOpen={cf7ModalOpen} toggle={() => { setCf7ModalOpen(false); setCf7Result(null); }} size='md' centered>
-            <ModalHeader toggle={() => { setCf7ModalOpen(false); setCf7Result(null); }}>
-              <div className='d-flex align-items-center gap-2'>
-                <IconImg src={`${ICON_PATH}/contact-form-7-icon.png`} alt="Contact Form 7" />
-                <span>Create Contact Form 7 Connection</span>
-              </div>
-            </ModalHeader>
-            <ModalBody>
-              {cf7Error && (
-                <Alert color='danger' className='mb-3' style={{ fontSize: '0.85rem' }} toggle={() => setCf7Error('')}>
-                  {cf7Error}
-                </Alert>
-              )}
-
-              {cf7Result ? (
-                <>
-                  <Alert color='success' className='mb-3' style={{ fontSize: '0.85rem' }}>
-                    Contact Form 7 connection created successfully!
-                  </Alert>
-                  {cf7Result.webhookUrl && (
-                    <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
-                      <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#a16207' }}>
-                        Your Inbound Webhook URL
-                      </div>
-                      <div className='d-flex align-items-center gap-2'>
-                        <code
-                          className='flex-grow-1 p-2 rounded'
-                          style={{
-                            fontSize: '0.75rem',
-                            backgroundColor: '#fff',
-                            border: '1px solid #e2e8f0',
-                            wordBreak: 'break-all',
-                            display: 'block',
-                          }}
-                        >
-                          {cf7Result.webhookUrl}
-                        </code>
-                        <button
-                          className='btn btn-sm btn-outline-primary d-flex align-items-center'
-                          onClick={handleCopyCf7Url}
-                          title='Copy URL'
-                          style={{ minWidth: '36px' }}
-                        >
-                          {cf7Copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                        </button>
-                      </div>
-                      <p className='mb-0 mt-2' style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                        Add this URL as a webhook in your Contact Form 7 WordPress settings.
-                      </p>
-                    </div>
-                  )}
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <div className='fw-medium mb-2' style={{ fontSize: '0.83rem', color: '#475569' }}>
-                      Next Steps
-                    </div>
-                    <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      <li className='mb-1'>Install <strong>Contact Form 7</strong> on your WordPress site</li>
-                      <li className='mb-1'>Download &amp; install our <a href='https://mapi.1automations.com/downloads/cf7-webhook-plugin.zip' target='_blank' rel='noopener noreferrer'>CF7 Webhook Plugin</a></li>
-                      <li className='mb-1'>Open <strong>CF7 Webhook</strong> from the WordPress sidebar</li>
-                      <li className='mb-1'>Select your form and paste the webhook URL above</li>
-                      <li className='mb-1'>Submit a test form entry to generate sample data</li>
-                      <li>Come back here and set up <strong>Field Mapping</strong></li>
-                    </ol>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className='mb-3'>
-                    <label className='form-label fw-medium'>Connection Name <span className='text-danger'>*</span></label>
-                    <input
-                      type='text'
-                      className='form-control'
-                      placeholder='e.g. My Contact Form 7 Leads'
-                      value={cf7Name}
-                      onChange={(e) => setCf7Name(e.target.value)}
-                    />
-                  </div>
-                  <div className='p-3 rounded' style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0' }}>
-                    <p className='mb-0' style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      After creating the connection, you will receive a webhook URL. You'll need to install our custom CF7 Webhook plugin on your WordPress site and paste the URL there.
-                    </p>
-                  </div>
-                </>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              {cf7Result ? (
-                <button className='btn btn-sm btn-primary' onClick={() => { setCf7ModalOpen(false); setCf7Result(null); }}>
-                  Done
-                </button>
-              ) : (
-                <>
-                  <button className='btn btn-sm btn-soft-danger' onClick={() => setCf7ModalOpen(false)}>
-                    Cancel
-                  </button>
-                  <button
-                    className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                    onClick={handleCreateContactForm7}
-                    disabled={cf7Creating || !cf7Name}
-                  >
-                    {cf7Creating && <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>}
-                    <span>{cf7Creating ? 'Creating...' : 'Create Connection'}</span>
-                  </button>
-                </>
-              )}
-            </ModalFooter>
-          </Modal>
+          <ContactForm7Modal
+            isOpen={cf7ModalOpen}
+            toggle={() => setCf7ModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
 
           {/* Facebook Lead Ads Modal */}
-          <Modal isOpen={showModal} toggle={() => setShowModal(false)} size='md' centered>
-            <ModalHeader toggle={() => setShowModal(false)}>
-              <div className='d-flex align-items-center gap-2'>
-                <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />
-                <span>Facebook Lead Ads</span>
-              </div>
-            </ModalHeader>
-            <ModalBody style={{ padding: 0, height: '70vh' }}>
-              {modalUrl && (
-                <iframe
-                  src={modalUrl}
-                  title='Facebook Lead Ads Connection'
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                  }}
-                />
-              )}
-            </ModalBody>
-          </Modal>
+          <FacebookLeadAdsModal
+            isOpen={showModal}
+            toggle={() => setShowModal(false)}
+            modalUrl={modalUrl}
+          />
         </Container>
         {loading && <Preloader />}
       </div>
