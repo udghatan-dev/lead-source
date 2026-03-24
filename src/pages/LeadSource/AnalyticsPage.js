@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Container, Spinner, Alert } from 'reactstrap';
 import BreadCrumb from '../../Components/Common/BreadCrumb';
 import MetaTag from '../../Components/Common/Meta';
 import { IoArrowBack } from 'react-icons/io5';
-import { FiBarChart2 } from 'react-icons/fi';
+import { FiBarChart2, FiDownload } from 'react-icons/fi';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import {
   BarChart,
   Bar,
@@ -54,10 +56,51 @@ const AnalyticsPage = () => {
   const [error, setError] = useState('');
   const [range, setRange] = useState('month');
   const [data, setData] = useState(null);
+  const [downloading, setDownloading] = useState(false);
+  const reportRef = useRef(null);
+
+  const handleDownloadPdf = async () => {
+    if (!reportRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+      let position = 0;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Handle multi-page if content is tall
+      if (pdfHeight <= pageHeight) {
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      } else {
+        while (position < pdfHeight) {
+          pdf.addImage(imgData, 'PNG', 0, -position, pdfWidth, pdfHeight);
+          position += pageHeight;
+          if (position < pdfHeight) pdf.addPage();
+        }
+      }
+
+      const rangeLabel = range === 'day' ? 'Daily' : range === 'month' ? 'Monthly' : 'Yearly';
+      pdf.save(`Lead_Analytics_${rangeLabel}_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (err) {
+      console.error('Failed to generate PDF:', err);
+      setError('Failed to generate PDF. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const fetchAnalytics = useCallback(() => {
     setLoading(true);
     setError('');
+    setData(null);
     getLeadsBySource({ range })
       .then((res) => {
         setData(res.data || res || null);
@@ -125,22 +168,38 @@ const AnalyticsPage = () => {
               Leads Analytics
             </h5>
           </div>
-          <div className='btn-group' role='group'>
-            {['day', 'month', 'year'].map((r) => (
+          <div className='d-flex align-items-center gap-2'>
+            <div className='btn-group' role='group'>
+              {['day', 'month', 'year'].map((r) => (
+                <button
+                  key={r}
+                  className='btn btn-sm'
+                  style={{
+                    backgroundColor: range === r ? '#3b82f6' : '#f8fafc',
+                    color: range === r ? '#fff' : '#64748b',
+                    border: '1px solid #e2e8f0',
+                    textTransform: 'capitalize',
+                  }}
+                  onClick={() => setRange(r)}
+                >
+                  {r === 'day' ? 'Daily' : r === 'month' ? 'Monthly' : 'Yearly'}
+                </button>
+              ))}
+            </div>
+            {data && (
               <button
-                key={r}
-                className='btn btn-sm'
-                style={{
-                  backgroundColor: range === r ? '#3b82f6' : '#f8fafc',
-                  color: range === r ? '#fff' : '#64748b',
-                  border: '1px solid #e2e8f0',
-                  textTransform: 'capitalize',
-                }}
-                onClick={() => setRange(r)}
+                className='btn btn-sm btn-outline-primary d-flex align-items-center gap-1'
+                onClick={handleDownloadPdf}
+                disabled={downloading}
               >
-                {r === 'day' ? 'Daily' : r === 'month' ? 'Monthly' : 'Yearly'}
+                {downloading ? (
+                  <span className='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span>
+                ) : (
+                  <FiDownload size={14} />
+                )}
+                <span>{downloading ? 'Generating...' : 'Download PDF'}</span>
               </button>
-            ))}
+            )}
           </div>
         </div>
 
@@ -161,7 +220,7 @@ const AnalyticsPage = () => {
             <p className='text-muted mt-3'>No analytics data available</p>
           </div>
         ) : (
-          <>
+          <div ref={reportRef}>
             {/* Summary Cards */}
             <div className='row g-3 mb-4'>
               <div className='col-md-3'>
@@ -353,7 +412,7 @@ const AnalyticsPage = () => {
                 </div>
               </div>
             </div>
-          </>
+          </div>
         )}
       </Container>
     </div>
