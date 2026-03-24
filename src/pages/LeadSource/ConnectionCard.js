@@ -155,8 +155,22 @@ const PROVIDER_CONFIG = {
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },
 
-  // Phone Contact
+  // Phone Contact / Call History Connect
   phone_connect: {
+    getTitle: TITLE_RESOLVERS.phoneConnect,
+    actions: ['configure', 'webhooks', 'logs', 'delete'],
+  },
+  call_connect: {
+    getTitle: TITLE_RESOLVERS.phoneConnect,
+    actions: ['configure', 'webhooks', 'logs', 'delete'],
+  },
+
+  // Contact Book
+  contact_connect: {
+    getTitle: TITLE_RESOLVERS.phoneConnect,
+    actions: ['configure', 'webhooks', 'logs', 'delete'],
+  },
+  contact_book: {
     getTitle: TITLE_RESOLVERS.phoneConnect,
     actions: ['configure', 'webhooks', 'logs', 'delete'],
   },

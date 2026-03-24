@@ -34,13 +34,22 @@ export const GENERIC_WEBHOOK_DELETE = '/api/auth/generic_webhook';
 export const GENERIC_WEBHOOK_GET_FIELD_LIST = '/api/auth/generic_webhook/get-field-list';
 
 // Phone Contact APIs
-export const PHONE_CONTACT_CONNECT = '/api/auth/phone_connect/connect';
-export const PHONE_CONTACT_CONNECTION = '/api/auth/phone_connect/connection';
-export const PHONE_CONTACT_DELETE = '/api/auth/phone_connect';
-export const PHONE_CONTACT_GET_FIELD_LIST = '/api/auth/phone_connect/get-field-list';
-export const PHONE_CONTACT_UPLOAD_URL = '/api/auth/phone_connect/upload-url';
-export const PHONE_CONTACT_PROCESS_FILE = '/api/auth/phone_connect/process-file';
-export const PHONE_CONTACT_UPLOAD_JSON = '/api/auth/phone_connect/upload-json';
+export const PHONE_CONTACT_CONNECT = '/api/auth/call_connect/connect';
+export const PHONE_CONTACT_CONNECTION = '/api/auth/call_connect/connection';
+export const PHONE_CONTACT_DELETE = '/api/auth/call_connect';
+export const PHONE_CONTACT_GET_FIELD_LIST = '/api/auth/call_connect/get-field-list';
+export const PHONE_CONTACT_UPLOAD_URL = '/api/auth/call_connect/upload-url';
+export const PHONE_CONTACT_PROCESS_FILE = '/api/auth/call_connect/process-file';
+export const PHONE_CONTACT_UPLOAD_JSON = '/api/auth/call_connect/upload-json';
+
+// Contact Book APIs
+export const CONTACT_BOOK_CONNECT = '/api/auth/contact_book/connect';
+export const CONTACT_BOOK_CONNECTION = '/api/auth/contact_book/connection';
+export const CONTACT_BOOK_DELETE = '/api/auth/contact_book';
+export const CONTACT_BOOK_GET_FIELD_LIST = '/api/auth/contact_book/get-field-list';
+export const CONTACT_BOOK_UPLOAD_URL = '/api/auth/contact_book/upload-url';
+export const CONTACT_BOOK_PROCESS_FILE = '/api/auth/contact_book/process-file';
+export const CONTACT_BOOK_UPLOAD_JSON = '/api/auth/contact_book/upload-json';
 
 // OCR App APIs
 export const OCR_APP_CONNECT = '/api/auth/ocr_app/connect';

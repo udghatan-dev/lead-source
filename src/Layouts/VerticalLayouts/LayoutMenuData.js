@@ -71,6 +71,17 @@ const Navdata = () => {
         setIscurrentState('LeadSource');
       },
     },
+    {
+      id: 'analytics',
+      label: 'Analytics',
+      icon: 'bx bx-bar-chart-alt-2',
+      link: '/settings/analytics',
+      parentId: 'leadsource',
+      click: function (e) {
+        e.preventDefault();
+        setIscurrentState('Analytics');
+      },
+    },
     // {
     //   id: 'dynamic_experience',
     //   label: 'Dynamic Experience',

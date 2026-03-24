@@ -45,7 +45,7 @@ const sourceConfig = {
   googleAds: { name: 'Google Ads', icon: <SiGoogleads />, color: '#4285F4' },
   linkedinLeadGen: { name: 'LinkedIn Lead Gen', icon: <SiLinkedin />, color: '#0077B5' },
   landingPage: { name: 'Landing Page', icon: <CgWebsite />, color: '#10b981' },
-  phoneContact: { name: 'Phone Contact', icon: <ImMobile />, color: '#f59e0b' },
+  callConnect: { name: 'Call History Connect', icon: <ImMobile />, color: '#f59e0b' },
   ocrApp: { name: 'OCR App', icon: <IoQrCodeOutline />, color: '#8b5cf6' },
   zohoCrm: { name: 'Zoho CRM', icon: <SiZoho />, color: '#D32F2F' },
   hubspotCrm: { name: 'Hubspot CRM', icon: <FaHubspot />, color: '#FF7A59' },

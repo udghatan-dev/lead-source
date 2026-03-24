@@ -12,6 +12,7 @@ import JotFormConfigForm from './ConfigForms/JotFormConfigForm';
 import ContactForm7ConfigForm from './ConfigForms/ContactForm7ConfigForm';
 import HubspotConfigForm from './ConfigForms/HubspotConfigForm';
 import OcrConfigForm from './ConfigForms/OcrConfigForm';
+import ContactBookConfigForm from './ConfigForms/ContactBookConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -26,6 +27,8 @@ const PROVIDER_FORM_MAP = {
   genericWebhook: GenericWebhookConfigForm,
   webhook: GenericWebhookConfigForm,
   phone_connect: PhoneContactConfigForm,
+  call_connect: PhoneContactConfigForm,
+  callConnect: PhoneContactConfigForm,
   ocr_app: OcrConfigForm,
   typeform: TypeformConfigForm,
   google_forms: GoogleFormsConfigForm,
@@ -37,6 +40,10 @@ const PROVIDER_FORM_MAP = {
   hubspot: HubspotConfigForm,
   hubspot_crm: HubspotConfigForm,
   hubspotCrm: HubspotConfigForm,
+  contact_book: ContactBookConfigForm,
+  contactBook: ContactBookConfigForm,
+  contact_connect: ContactBookConfigForm,
+  contactConnect: ContactBookConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {

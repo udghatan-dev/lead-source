@@ -28,7 +28,8 @@ import {
   pullIndiamartLeads,
   pullZohoLeads,
   updateConnections,
-  deleteHubspotConnection
+  deleteHubspotConnection,
+  deleteContactBookConnection
 } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
@@ -42,6 +43,7 @@ import JotFormModal from './models/JotFormModal';
 import ContactForm7Modal from './models/ContactForm7Modal';
 import FacebookLeadAdsModal from './models/FacebookLeadAdsModal';
 import OcrAppModal from './models/OcrAppModal';
+import ContactBookModal from './models/ContactBookModal';
 
 //icons
 import { SiGoogleads } from 'react-icons/si';
@@ -56,6 +58,7 @@ import { LiaSalesforce } from 'react-icons/lia';
 import { FaHandshake } from 'react-icons/fa';
 import { BsBuildingsFill } from 'react-icons/bs';
 import { MdRestaurant } from 'react-icons/md';
+import { RiContactsBook2Line } from 'react-icons/ri';
 
 // Local icon assets
 const ICON_PATH = '/leadsource/assets/icons';
@@ -73,7 +76,7 @@ const sourceIconMap = {
   googleAds: <SiGoogleads />,
   linkedinLeadGen: <SiLinkedin />,
   landingPage: <CgWebsite />,
-  phoneContact: <ImMobile />,
+  callConnect: <ImMobile />,
   ocrApp: <IoQrCodeOutline />,
   zohoCrm: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
   hubspotCrm: <IconImg src={`${ICON_PATH}/hubspot-icon.svg`} alt="HubSpot" />,
@@ -87,13 +90,15 @@ const sourceIconMap = {
   jotForm: <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />,
   jotform: <IconImg src={`${ICON_PATH}/JotForm-icon.svg`} alt="JotForm" />,
   contactform7: <IconImg src={`${ICON_PATH}/contact-form-7-icon.png`} alt="Contact Form 7" />,
+  contactBook: <RiContactsBook2Line />,
   // provider keys (returned from API)
   facebook_leadgen: <IconImg src={`${ICON_PATH}/meta-icon.svg`} alt="Meta" />,
   google_forms: <IconImg src={`${ICON_PATH}/google-forms-icon.svg`} alt="Google Forms" />,
   google_ads: <SiGoogleads />,
   linkedin_leadgen: <SiLinkedin />,
   landing_page: <CgWebsite />,
-  phone_contact: <ImMobile />,
+  call_connect: <ImMobile />,
+  callConnect: <ImMobile />,
   ocr_app: <IoQrCodeOutline />,
   zoho: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
   zoho_crm: <IconImg src={`${ICON_PATH}/zoho-icon.svg`} alt="Zoho" />,
@@ -101,6 +106,8 @@ const sourceIconMap = {
   indiamart: <IconImg src={`${ICON_PATH}/Indiamart-icon.png`} alt="IndiaMART" />,
   trade_india: <FaHandshake />,
   magic_bricks: <BsBuildingsFill />,
+  contact_connect: <RiContactsBook2Line />,
+  contact_book: <RiContactsBook2Line />,
 };
 
 const getSourceIcon = (connection) => {
@@ -130,6 +137,7 @@ const LeadSources = (props) => {
   const [googleFormsModalOpen, setGoogleFormsModalOpen] = useState(false);
   const [jotFormModalOpen, setJotFormModalOpen] = useState(false);
   const [cf7ModalOpen, setCf7ModalOpen] = useState(false);
+  const [contactBookModalOpen, setContactBookModalOpen] = useState(false);
 
   // Installed connections state
   const [connections, setConnections] = useState([]);
@@ -268,11 +276,20 @@ const LeadSources = (props) => {
     {
       id: 8,
       version: '0.0.1',
-      name: 'Phone Contact',
-      key: 'phoneContact',
+      name: 'Call History Connect',
+      key: 'callConnect',
       isConnectShow: false,
       icon: <ImMobile />,
-      description: 'Import leads from phone contacts',
+      description: 'Import leads from call history',
+    },
+    {
+      id: 18,
+      version: '0.0.1',
+      name: 'Contact Book',
+      key: 'contactBook',
+      isConnectShow: false,
+      icon: <RiContactsBook2Line />,
+      description: 'Import leads from your phone contact book',
     },
     {
       id: 9,
@@ -401,7 +418,7 @@ const LeadSources = (props) => {
       await deleteZohoConnection(id);
     } else if (provider === 'generic_webhook' || provider === 'genericWebhook' || provider === 'webhook') {
       await deleteGenericWebhookConnection(id);
-    } else if (provider === 'phone_contact' || provider === 'phoneContact') {
+    } else if (provider === 'phone_contact' || provider === 'phoneContact' || provider === 'call_connect' || provider === 'callConnect') {
       await deletePhoneContactConnection(id);
     } else if (provider === 'ocr') {
       await deleteOcrConnection(id);
@@ -415,6 +432,8 @@ const LeadSources = (props) => {
       await deleteContactForm7Connection(id);
     } else if (provider === 'hubspot' || provider === 'hubspot_crm' || provider === 'hubspotCrm') {
       await deleteHubspotConnection(id);
+    } else if (provider === 'contact_book' || provider === 'contactBook' || provider === 'contact_connect' || provider === 'contactConnect') {
+      await deleteContactBookConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -480,8 +499,13 @@ const LeadSources = (props) => {
         setWebhookModalOpen(true);
         break;
       }
-      case 'phoneContact': {
+      case 'phoneContact':
+      case 'callConnect': {
         setPhoneModalOpen(true);
+        break;
+      }
+      case 'contactBook': {
+        setContactBookModalOpen(true);
         break;
       }
       case 'ocrApp': {
@@ -517,13 +541,8 @@ const LeadSources = (props) => {
                 fetchConnections(currentPage);
                 return;
               }
-              if (hubspotPopup.location.href && hubspotPopup.location.href.includes('hubspot=success')) {
-                clearInterval(pollTimer);
-                hubspotPopup.close();
-                fetchConnections(currentPage);
-              }
             } catch (e) {
-              // Cross-origin — ignore until redirect back to same origin or popup closes
+              // Cross-origin — ignore
             }
           }, 500);
         }
@@ -607,15 +626,6 @@ const LeadSources = (props) => {
                   }}
                 />
               </div>
-            </div>
-            <div className='col-md-6 d-flex justify-content-end'>
-              <button
-                className='btn btn-sm btn-primary d-flex align-items-center gap-2'
-                onClick={() => history.push(`/settings/analytics?tab=${activeTab}`)}
-              >
-                <i className='ri-bar-chart-2-line'></i>
-                <span>Analytics</span>
-              </button>
             </div>
           </div>
 
@@ -910,6 +920,13 @@ const LeadSources = (props) => {
           <PhoneContactModal
             isOpen={phoneModalOpen}
             toggle={() => setPhoneModalOpen(false)}
+            onSuccess={handleConnectionCreated}
+          />
+
+          {/* Contact Book Creation Modal */}
+          <ContactBookModal
+            isOpen={contactBookModalOpen}
+            toggle={() => setContactBookModalOpen(false)}
             onSuccess={handleConnectionCreated}
           />
 

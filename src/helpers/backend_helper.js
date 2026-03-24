@@ -345,6 +345,15 @@ export const getPhoneContactUploadUrl = (id) => leadsourceApi.get(`${lsUrl.PHONE
 export const processPhoneContactFile = (id) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_PROCESS_FILE}/${id}`);
 export const uploadPhoneContactJson = (id, data) => leadsourceApi.create(`${lsUrl.PHONE_CONTACT_UPLOAD_JSON}/${id}`, data);
 
+// Contact Book
+export const connectContactBook = (data) => leadsourceApi.create(lsUrl.CONTACT_BOOK_CONNECT, data);
+export const getContactBookConnection = (id) => leadsourceApi.get(`${lsUrl.CONTACT_BOOK_CONNECTION}/${id}`);
+export const deleteContactBookConnection = (id) => leadsourceApi.delete(`${lsUrl.CONTACT_BOOK_DELETE}/${id}/delete-connection`);
+export const getContactBookFieldList = () => leadsourceApi.get(lsUrl.CONTACT_BOOK_GET_FIELD_LIST);
+export const getContactBookUploadUrl = (id) => leadsourceApi.get(`${lsUrl.CONTACT_BOOK_UPLOAD_URL}/${id}`);
+export const processContactBookFile = (id) => leadsourceApi.create(`${lsUrl.CONTACT_BOOK_PROCESS_FILE}/${id}`);
+export const uploadContactBookJson = (id, data) => leadsourceApi.create(`${lsUrl.CONTACT_BOOK_UPLOAD_JSON}/${id}`, data);
+
 // OCR App
 export const connectOcrApp = (data) => leadsourceApi.create(lsUrl.OCR_APP_CONNECT, data);
 export const getOcrAppConnection = (id) => leadsourceApi.get(`${lsUrl.OCR_APP_CONNECTION}/${id}`);

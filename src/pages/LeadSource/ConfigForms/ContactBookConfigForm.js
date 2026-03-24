@@ -5,12 +5,12 @@ import {
   Spinner,
   Alert,
 } from 'reactstrap';
-import { ImMobile } from 'react-icons/im';
+import { RiContactsBook2Line } from 'react-icons/ri';
 import { FiCopy, FiCheck } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
-import { getPhoneContactConnection } from '../../../helpers/backend_helper';
+import { getContactBookConnection } from '../../../helpers/backend_helper';
 
-const PhoneContactConfigForm = ({ connection, toggle }) => {
+const ContactBookConfigForm = ({ connection, toggle }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [connectionDetails, setConnectionDetails] = useState(null);
@@ -22,7 +22,7 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
     if (!connectionId) return;
     setLoading(true);
     setError('');
-    getPhoneContactConnection(connectionId)
+    getContactBookConnection(connectionId)
       .then((res) => {
         setConnectionDetails(res.data || res || {});
       })
@@ -60,11 +60,11 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
         ) : (
           <>
             {/* Header */}
-            <div className='p-3 rounded mb-3' style={{ backgroundColor: '#fefce8', border: '1px solid #fde68a' }}>
+            <div className='p-3 rounded mb-3' style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0' }}>
               <div className='d-flex align-items-center justify-content-between'>
-                <p className='mb-0 fw-medium' style={{ fontSize: '0.85rem', color: '#a16207' }}>
-                  <ImMobile className='me-1' />
-                  Call History Connect Connection
+                <p className='mb-0 fw-medium' style={{ fontSize: '0.85rem', color: '#15803d' }}>
+                  <RiContactsBook2Line className='me-1' />
+                  Contact Book Connection
                 </p>
                 <span
                   className='badge'
@@ -150,7 +150,7 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
                   Scan QR Code with your Phone
                 </div>
                 <p className='text-muted mb-3' style={{ fontSize: '0.75rem' }}>
-                  Open your phone camera and scan this QR code to access the webhook URL.
+                  Open your phone camera and scan this QR code to share contacts from your contact book.
                 </p>
                 <div className='d-flex justify-content-center'>
                   <QRCodeSVG
@@ -171,7 +171,7 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
               </div>
               <ol className='mb-0 ps-3' style={{ fontSize: '0.8rem', color: '#64748b' }}>
                 <li className='mb-1'>Scan the QR code above with your phone camera</li>
-                <li className='mb-1'>Open the link to send contacts from your phone</li>
+                <li className='mb-1'>Open the link to share contacts from your contact book</li>
                 <li>Contacts will automatically be imported as leads</li>
               </ol>
             </div>
@@ -185,4 +185,4 @@ const PhoneContactConfigForm = ({ connection, toggle }) => {
   );
 };
 
-export default PhoneContactConfigForm;
+export default ContactBookConfigForm;
