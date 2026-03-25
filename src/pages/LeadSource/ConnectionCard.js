@@ -97,7 +97,7 @@ const PROVIDER_CONFIG = {
   zoho: {
     getTitle: TITLE_RESOLVERS.zohoAccount,
     getSubTitle: (c) => `${c?.configuration?.zohoUserName} ${c?.configuration?.zohoUserEmail}`,
-    actions: ['configure', 'webhooks', 'syncLeads', 'fieldMapping', 'logs', 'delete'],
+    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
 
   // Webhook
