@@ -464,8 +464,9 @@ const SOURCE_DOCS = {
       },
       {
         title: 'Download the Mobile App',
-        description: 'Download and install our mobile application on your phone from the link provided on the connection card. This is the same app used for Contact Book and OCR — one app handles all three features.',
+        description: 'Download and install our mobile application on your phone from the link provided. This is the same app used for Contact Book and OCR — one app handles all three features.',
         image: null,
+        note: 'https://s3.eu-west-1.wasabisys.com/appcontent/snaplead.apk',
         tip: 'Make sure to allow the app to access your call logs and phone permissions when prompted.',
       },
       {
@@ -512,8 +513,9 @@ const SOURCE_DOCS = {
       },
       {
         title: 'Download the Mobile App',
-        description: 'Download and install our mobile application on your phone from the link provided on the connection card. This is the same app used for Call Connect and OCR — one app handles all three features.',
+        description: 'Download and install our mobile application on your phone from the link provided. This is the same app used for Call Connect and OCR — one app handles all three features.',
         image: null,
+        note: 'https://s3.eu-west-1.wasabisys.com/appcontent/snaplead.apk',
         tip: 'Make sure to allow the app to access your phone contacts when prompted.',
       },
       {
@@ -560,8 +562,9 @@ const SOURCE_DOCS = {
       },
       {
         title: 'Download the Mobile App',
-        description: 'Download and install our mobile application on your phone from the link provided on the connection card. This is the same app used for Call Connect and Contact Book — one app handles all three features.',
+        description: 'Download and install our mobile application on your phone from the link provided. This is the same app used for Call Connect and Contact Book — one app handles all three features.',
         image: null,
+        note: 'https://s3.eu-west-1.wasabisys.com/appcontent/snaplead.apk',
         tip: 'Make sure to allow the app to access your camera when prompted.',
       },
       {
