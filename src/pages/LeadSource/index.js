@@ -278,15 +278,6 @@ const LeadSources = (props) => {
       description: 'Capture leads from WordPress Contact Form 7',
     },
     {
-      id: 19,
-      version: '0.0.1',
-      name: 'Shopify',
-      key: 'shopify',
-      isConnectShow: true,
-      icon: <SiShopify color="#96bf48" size={28} />,
-      description: 'Capture leads from Shopify orders and checkouts',
-    },
-    {
       id: 8,
       version: '0.0.1',
       name: 'Call History Connect',
@@ -312,6 +303,15 @@ const LeadSources = (props) => {
       isConnectShow: true,
       icon: <IoQrCodeOutline />,
       description: 'Scan and capture leads via OCR',
+    },
+    {
+      id: 19,
+      version: '0.0.1',
+      name: 'Shopify',
+      key: 'shopify',
+      isConnectShow: false,
+      icon: <SiShopify color="#96bf48" size={28} />,
+      description: 'Capture leads from Shopify orders and checkouts',
     },
     {
       id: 14,
