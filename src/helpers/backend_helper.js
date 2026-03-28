@@ -395,6 +395,14 @@ export const saveHubspotSelection = (data) => leadsourceApi.create(lsUrl.HUBSPOT
 export const getHubspotFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.HUBSPOT_GET_FIELD_LIST}?connectionId=${connectionId}`);
 export const deleteHubspotConnection = (id) => leadsourceApi.delete(`${lsUrl.HUBSPOT_DELETE}/${id}/delete-connection`);
 
+// Shopify
+export const getShopifyConnectUrl = (shop) => leadsourceApi.get(`${lsUrl.SHOPIFY_CONNECT}?shop=${encodeURIComponent(shop)}`);
+export const getShopifyConnection = (id) => leadsourceApi.get(`${lsUrl.SHOPIFY_CONNECTION}/${id}`);
+export const getShopifyForms = (connectionId) => leadsourceApi.get(`${lsUrl.SHOPIFY_FORMS}?connectionId=${connectionId}`);
+export const saveShopifySelection = (data) => leadsourceApi.create(lsUrl.SHOPIFY_SAVE_SELECTION, data);
+export const getShopifyFieldList = (connectionId) => leadsourceApi.get(`${lsUrl.SHOPIFY_GET_FIELD_LIST}?connectionId=${connectionId}`);
+export const deleteShopifyConnection = (id) => leadsourceApi.delete(`${lsUrl.SHOPIFY_DELETE}/${id}/delete-connection`);
+
 export const getCrmFields = (data) => api.get(lsUrl.CRM_FIELDS, data);
 export const getFieldMappings = (connectionId) => leadsourceApi.get(`${lsUrl.FIELD_MAPPING}/${connectionId}`);
 export const upsertFieldMappings = (data) => leadsourceApi.create(lsUrl.FIELD_MAPPING_UPSERT, data);

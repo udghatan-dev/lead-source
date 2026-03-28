@@ -29,7 +29,8 @@ import {
   pullZohoLeads,
   updateConnections,
   deleteHubspotConnection,
-  deleteContactBookConnection
+  deleteContactBookConnection,
+  deleteShopifyConnection
 } from '../../helpers/backend_helper';
 import ConfigureModal from './ConfigureModal';
 import DeleteConfirmModal from './DeleteConfirmModal';
@@ -48,6 +49,7 @@ import ContactBookModal from './models/ContactBookModal';
 //icons
 import { SiGoogleads } from 'react-icons/si';
 import { SiLinkedin } from 'react-icons/si';
+import { SiShopify } from 'react-icons/si';
 import { CgWebsite } from 'react-icons/cg';
 import { FaYoutube } from 'react-icons/fa';
 import { FiExternalLink } from 'react-icons/fi';
@@ -108,6 +110,8 @@ const sourceIconMap = {
   magic_bricks: <BsBuildingsFill />,
   contact_connect: <RiContactsBook2Line />,
   contact_book: <RiContactsBook2Line />,
+  shopify: <SiShopify color="#96bf48" />,
+  shopifyCrm: <SiShopify color="#96bf48" />,
 };
 
 const getSourceIcon = (connection) => {
@@ -274,6 +278,15 @@ const LeadSources = (props) => {
       description: 'Capture leads from WordPress Contact Form 7',
     },
     {
+      id: 19,
+      version: '0.0.1',
+      name: 'Shopify',
+      key: 'shopify',
+      isConnectShow: true,
+      icon: <SiShopify color="#96bf48" size={28} />,
+      description: 'Capture leads from Shopify orders and checkouts',
+    },
+    {
       id: 8,
       version: '0.0.1',
       name: 'Call History Connect',
@@ -434,6 +447,8 @@ const LeadSources = (props) => {
       await deleteHubspotConnection(id);
     } else if (provider === 'contact_book' || provider === 'contactBook' || provider === 'contact_connect' || provider === 'contactConnect') {
       await deleteContactBookConnection(id);
+    } else if (provider === 'shopify') {
+      await deleteShopifyConnection(id);
     } else {
       await deleteConnection(id);
     }
@@ -543,6 +558,37 @@ const LeadSources = (props) => {
               }
             } catch (e) {
               // Cross-origin — ignore
+            }
+          }, 500);
+        }
+        break;
+      }
+      case 'shopify': {
+        const token = await getSessionToken({ leadSourceId: 'shopify' });
+        setLoading(false);
+        // const shopifyUrl = `https://oauth.automationsbuilder.com/shopify-session?token=${token?.session}`;
+        const shopifyUrl = `http://localhost:5173/shopify-session?token=${token?.session}`;
+        const sWidth = 600;
+        const sHeight = 700;
+        const sLeft = window.screenX + (window.outerWidth - sWidth) / 2;
+        const sTop = window.screenY + (window.outerHeight - sHeight) / 2;
+        const shopifyPopup = window.open(shopifyUrl, 'shopify_oauth', `width=${sWidth},height=${sHeight},left=${sLeft},top=${sTop},scrollbars=yes`);
+        if (shopifyPopup) {
+          const handleShopifyMessage = (event) => {
+            if (event.data?.type === 'shopify_connect') {
+              window.removeEventListener('message', handleShopifyMessage);
+              if (shopifyPopup && !shopifyPopup.closed) shopifyPopup.close();
+              if (event.data.status === 'success') {
+                fetchConnections(currentPage);
+              }
+            }
+          };
+          window.addEventListener('message', handleShopifyMessage);
+          const pollTimer = setInterval(() => {
+            if (shopifyPopup.closed) {
+              clearInterval(pollTimer);
+              window.removeEventListener('message', handleShopifyMessage);
+              fetchConnections(currentPage);
             }
           }, 500);
         }

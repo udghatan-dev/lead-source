@@ -196,6 +196,13 @@ const PROVIDER_CONFIG = {
     actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
   },
 
+  // Shopify
+  shopify: {
+    getTitle: (c) => c?.configuration?.shopName || c?.configuration?.accountName || c?.name || c?.source,
+    getSubTitle: (c) => c?.configuration?.sourceName,
+    actions: ['configure', 'webhooks', 'fieldMapping', 'logs', 'delete'],
+  },
+
   // Marketplace Providers
   trade_india: {
     getTitle: TITLE_RESOLVERS.connectionName,

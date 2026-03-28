@@ -707,6 +707,50 @@ const SOURCE_DOCS = {
       'Detailed logs for tracking incoming leads',
     ],
   },
+  shopify: {
+    title: 'Shopify',
+    description: 'Connect your Shopify store to automatically capture leads from new orders and abandoned checkouts.',
+    videoUrl: null,
+    steps: [
+      {
+        title: 'Click "Create Connection"',
+        description: 'Go to Lead Sources, find Shopify and click the Create Connection button. A Shopify OAuth window will open.',
+        image: null,
+      },
+      {
+        title: 'Authorize Your Store',
+        description: 'Log in to your Shopify store and authorize the app. Grant the required permissions to access orders and customer data.',
+        image: null,
+      },
+      {
+        title: 'Select Lead Source',
+        description: 'After connecting, open Configure to choose which Shopify event to capture leads from — new orders or abandoned checkouts.',
+        image: null,
+      },
+      {
+        title: 'Set Up Field Mapping',
+        description: 'Map Shopify customer and order fields to your CRM fields to ensure lead data is stored correctly.',
+        image: null,
+      },
+      {
+        title: 'Add Webhook (Optional)',
+        description: 'Attach a webhook to receive real-time notifications when a new lead arrives from Shopify.',
+        image: null,
+      },
+      {
+        title: 'View Logs & Monitor',
+        description: 'Use the Logs section to track incoming leads, view sync history, and debug any issues.',
+        image: null,
+      },
+    ],
+    features: [
+      'OAuth-based secure connection to your Shopify store',
+      'Capture leads from new orders and abandoned checkouts',
+      'Real-time webhook-based lead sync',
+      'Map Shopify customer fields to CRM fields',
+      'Detailed logs for tracking incoming leads',
+    ],
+  },
 };
 
 /**

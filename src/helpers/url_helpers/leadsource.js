@@ -93,6 +93,14 @@ export const HUBSPOT_SAVE_SELECTION = '/api/auth/hubspot/save-selection';
 export const HUBSPOT_GET_FIELD_LIST = '/api/auth/hubspot/get-field-list';
 export const HUBSPOT_DELETE = '/api/auth/hubspot';
 
+// Shopify APIs
+export const SHOPIFY_CONNECT = '/api/auth/shopify/connect';
+export const SHOPIFY_CONNECTION = '/api/auth/shopify/connection';
+export const SHOPIFY_FORMS = '/api/auth/shopify/forms';
+export const SHOPIFY_SAVE_SELECTION = '/api/auth/shopify/save-selection';
+export const SHOPIFY_GET_FIELD_LIST = '/api/auth/shopify/get-field-list';
+export const SHOPIFY_DELETE = '/api/auth/shopify';
+
 // Analytics APIs
 export const ANALYTICS_LEADS_BY_SOURCE = '/api/analytics/leads-by-source';
 

@@ -13,6 +13,7 @@ import ContactForm7ConfigForm from './ConfigForms/ContactForm7ConfigForm';
 import HubspotConfigForm from './ConfigForms/HubspotConfigForm';
 import OcrConfigForm from './ConfigForms/OcrConfigForm';
 import ContactBookConfigForm from './ConfigForms/ContactBookConfigForm';
+import ShopifyConfigForm from './ConfigForms/ShopifyConfigForm';
 
 const getProvider = (connection) =>
   connection?.provider || connection?.source || '';
@@ -44,6 +45,7 @@ const PROVIDER_FORM_MAP = {
   contactBook: ContactBookConfigForm,
   contact_connect: ContactBookConfigForm,
   contactConnect: ContactBookConfigForm,
+  shopify: ShopifyConfigForm,
 };
 
 const ConfigureModal = ({ isOpen, toggle, connection, onSave }) => {
