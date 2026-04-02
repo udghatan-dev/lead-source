@@ -289,6 +289,26 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
       .map(([key, value]) => ({ key, label: `${key}: ${value}` }));
   }, [connection]);
 
+  // Provider types that should include connection.configuration options in field mapping dropdowns
+  // Add more provider types here as needed (e.g. 'indiamart', 'zoho', etc.)
+  const PROVIDERS_WITH_CONFIG_OPTIONS = ['facebook_leadgen'];
+
+  const provider = connection?.provider || connection?.source || connection?.key || '';
+
+  // Combine formFields with connection.configuration options for CRM field mapping dropdowns
+  const combinedFormFields = React.useMemo(() => {
+    if (!PROVIDERS_WITH_CONFIG_OPTIONS.includes(provider) || !tagOptions.length) return formFields;
+    const configFields = tagOptions.map((opt) => ({
+      key: opt.key,
+      name: opt.label,
+      label: opt.label,
+      _isConfigOption: true,
+    }));
+    const existingKeys = new Set(formFields.map((f) => f.key || f.id || f.name));
+    const uniqueConfigFields = configFields.filter((cf) => !existingKeys.has(cf.key));
+    return [...formFields, ...uniqueConfigFields];
+  }, [formFields, tagOptions, provider]);
+
   const fetchCrmFields = useCallback((page = 1, search = '') => {
     setLoadingCrm(true);
     getCrmFields({ limit: 20, page, search })
@@ -677,7 +697,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                         }}
                       >
                         <option value=''>-- Select form field --</option>
-                        {formFields?.map((ff) => {
+                        {combinedFormFields?.map((ff) => {
                           const ffKey = ff.key || ff.id || ff.name;
                           return (
                             <option key={ffKey} value={ffKey}>
@@ -781,7 +801,7 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                               style={{ fontSize: '0.8rem' }}
                             >
                               <option value=''>-- Not mapped --</option>
-                              {formFields?.map((ff) => {
+                              {combinedFormFields?.map((ff) => {
                                 const ffKey = ff.key || ff.id || ff.name;
                                 return (
                                   <option key={ffKey} value={ffKey}>
