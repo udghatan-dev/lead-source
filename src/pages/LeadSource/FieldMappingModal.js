@@ -31,8 +31,19 @@ const PROVIDER_FIELD_FETCHERS = {
       pageAccessToken: existing.accessToken || existing.access_token || existing.pageAccessToken,
     });
     const formList = res?.leadForms || res?.data || res || [];
-    const selectedForm = formList.find((f) => f.id === config.formId);
-    return selectedForm?.questions || [];
+    // Collect questions from ALL forms, deduped by key
+    const seenKeys = new Set();
+    const allQuestions = [];
+    formList.forEach((form) => {
+      (form.questions || []).forEach((q) => {
+        const qKey = q.key || q.id || q.name;
+        if (!seenKeys.has(qKey)) {
+          seenKeys.add(qKey);
+          allQuestions.push(q);
+        }
+      });
+    });
+    return allQuestions;
   },
 
   // IndiaMART: GET call, response is { formFields: { KEY: "label", ... } }
@@ -295,19 +306,23 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
 
   const provider = connection?.provider || connection?.source || connection?.key || '';
 
-  // Combine formFields with connection.configuration options for CRM field mapping dropdowns
-  const combinedFormFields = React.useMemo(() => {
-    if (!PROVIDERS_WITH_CONFIG_OPTIONS.includes(provider) || !tagOptions.length) return formFields;
-    const configFields = tagOptions.map((opt) => ({
+  // Separate form questions and configuration fields for grouped dropdowns
+  const configFields = React.useMemo(() => {
+    if (!PROVIDERS_WITH_CONFIG_OPTIONS.includes(provider) || !tagOptions.length) return [];
+    const fields = tagOptions.map((opt) => ({
       key: opt.key,
       name: opt.label,
       label: opt.label,
       _isConfigOption: true,
     }));
     const existingKeys = new Set(formFields.map((f) => f.key || f.id || f.name));
-    const uniqueConfigFields = configFields.filter((cf) => !existingKeys.has(cf.key));
-    return [...formFields, ...uniqueConfigFields];
+    return fields.filter((cf) => !existingKeys.has(cf.key));
   }, [formFields, tagOptions, provider]);
+
+  // Combined for save logic and backward compat
+  const combinedFormFields = React.useMemo(() => {
+    return [...formFields, ...configFields];
+  }, [formFields, configFields]);
 
   const fetchCrmFields = useCallback((page = 1, search = '') => {
     setLoadingCrm(true);
@@ -697,14 +712,34 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                         }}
                       >
                         <option value=''>-- Select form field --</option>
-                        {combinedFormFields?.map((ff) => {
-                          const ffKey = ff.key || ff.id || ff.name;
-                          return (
-                            <option key={ffKey} value={ffKey}>
-                              {ff.name || ff.label}
-                            </option>
-                          );
-                        })}
+                        {formFields.length > 0 && (
+                          <optgroup label='Form Questions'>
+                            {formFields.map((ff) => {
+                              const ffKey = ff.key || ff.id || ff.name;
+                              const ffLabel = ff.name || ff.label || '';
+                              const displayText = ffKey && ffLabel && ffKey !== ffLabel
+                                ? `${ffKey}`
+                                : ffLabel || ffKey;
+                              return (
+                                <option key={ffKey} value={ffKey}>
+                                  {displayText}
+                                </option>
+                              );
+                            })}
+                          </optgroup>
+                        )}
+                        {configFields.length > 0 && (
+                          <optgroup label='Configuration Fields'>
+                            {configFields.map((ff) => {
+                              const ffKey = ff.key || ff.id || ff.name;
+                              return (
+                                <option key={ffKey} value={ffKey}>
+                                  {ff.name || ff.label}
+                                </option>
+                              );
+                            })}
+                          </optgroup>
+                        )}
                       </Input>
                     )}
                   </div>
@@ -801,14 +836,34 @@ const FieldMappingModal = ({ isOpen, toggle, connection }) => {
                               style={{ fontSize: '0.8rem' }}
                             >
                               <option value=''>-- Not mapped --</option>
-                              {combinedFormFields?.map((ff) => {
-                                const ffKey = ff.key || ff.id || ff.name;
-                                return (
-                                  <option key={ffKey} value={ffKey}>
-                                    {ff.name || ff.label}
-                                  </option>
-                                );
-                              })}
+                              {formFields.length > 0 && (
+                                <optgroup label='Form Questions'>
+                                  {formFields.map((ff) => {
+                                    const ffKey = ff.key || ff.id || ff.name;
+                                    const ffLabel = ff.name || ff.label || '';
+                                    const displayText = ffKey && ffLabel && ffKey !== ffLabel
+                                      ? `${ffKey}`
+                                      : ffLabel || ffKey;
+                                    return (
+                                      <option key={ffKey} value={ffKey}>
+                                        {displayText}
+                                      </option>
+                                    );
+                                  })}
+                                </optgroup>
+                              )}
+                              {configFields.length > 0 && (
+                                <optgroup label='Configuration Fields'>
+                                  {configFields.map((ff) => {
+                                    const ffKey = ff.key || ff.id || ff.name;
+                                    return (
+                                      <option key={ffKey} value={ffKey}>
+                                        {ff.name || ff.label}
+                                      </option>
+                                    );
+                                  })}
+                                </optgroup>
+                              )}
                             </Input>
                             {mappedFormKey && (
                               <IoMdClose
